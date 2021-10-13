@@ -3,7 +3,7 @@
     "name": "Toloka Assistant",
     "description": "This is an experimental plugin that tracks your performance in MTurk. Please fill the initial and end surveys and uninstall it after a week.",
     "minimum_chrome_version": "24.0.1307.0",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "homepage_url": "http://bit.ly/study-instructions",
     "icons": {
         "16": "icon_16.png",
@@ -21,10 +21,15 @@
             ],
             "all_frames": true,
             "js": [
+                "js/jquery.js",
                 "js/core.js",
                 "js/fsm.js",
                 "js/triggers.js",
-                "js/front.js"
+                "js/front.js",
+                "js/interface.js"
+            ],
+            "css": [
+                "css/interface.css"
             ]
         }
     ],
