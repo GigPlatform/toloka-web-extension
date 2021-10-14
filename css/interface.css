@@ -1,7 +1,104 @@
+#taskList {
+    width: 420px;
+    max-height: 260px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.git-label-top {
+    margin: 0px;
+    padding: 0px;
+}
+
+.git-label-sub {
+    margin-top: -10px;
+    font-size: 8px;
+    padding: 0px;
+}
+
+.gig-popup-tasks {
+    width:400px;
+}
+
+.gig-popup-left {
+    float:left;
+}
+
+.gig-popup-right {
+    float: right;
+}
+
 .gig-rounded {
-    border-radius: 25px;
+    border-radius: 10px;
     border: 2px solid #73AD21;
-    padding: 20px;
-    width: 200px;
-    height: 150px;
+    padding: 10px;
+    width: 350px;
+    height: 70px;
+    margin-bottom: 10px;
   }
+
+.git-label-req {
+    width:100px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.git-label-mid {
+    display: inline-block;
+    width:100px;
+    padding:0;
+    margin-left:5px;
+    text-align: center;
+}
+
+.git-label-title {
+    display:inline-block;
+    width:260px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.git-label-desc {
+    display:inline-block;
+    width:320px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    margin-bottom: 0px;
+    padding:0;
+    margin:0;
+}
+
+.git-label-reward {
+    color: #47c971;
+}
+
+.git-label-field {
+    display: inline-block;
+    width:35px;
+    padding:0;
+    margin-left:5px;
+    text-align: center;
+}
+
+.git-popup-sett {
+    display:none;
+    width:200px;
+}
+
+.gig-centered {
+    text-align: center;
+}
+
+.gig-checkbox {
+    margin-left: 10px;
+    transform : scale(2);
+}
+
+.links {
+    text-decoration: none;
+    color: inherit;
+    cursor: auto;
+}

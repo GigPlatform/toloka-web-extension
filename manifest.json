@@ -22,6 +22,7 @@
             "all_frames": true,
             "js": [
                 "js/jquery.js",
+                "js/danfo.js",
                 "js/core.js",
                 "js/fsm.js",
                 "js/triggers.js",
