@@ -114,6 +114,24 @@ function enableContextMenu() {
   }
 }
 
+function openTabUrl(params, sendResponse) {
+  console.log("_LINK_", params.link);
+  chrome.tabs.create({ url: params.link }, function(tab){
+    console.log(tab);
+    sendResponse({status: "OK_"});
+  });
+}
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse){
+    if (request.msg == 'custom') {
+      window[request.action](request.params, sendResponse);
+    } else {
+      window[request.msg]();
+    }
+  }
+);
+
 chrome.runtime.onInstalled.addListener(function (object) {
   getUserId().then(userId => {
     getConfiguration().then(config => {
@@ -184,12 +202,6 @@ chrome.tabs.onRemoved.addListener(function(tabId, info) {
   logEvent(tabToUrl[tabId], 'TAB_CLOSED');
   delete tabToUrl[tabId];
 });
-
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse){
-    window[request.msg]();
-  }
-);
 
 /*
 chrome.windows.onFocusChanged.addListener((window) => {

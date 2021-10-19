@@ -27,7 +27,8 @@
                 "js/fsm.js",
                 "js/triggers.js",
                 "js/front.js",
-                "js/interface.js"
+                "js/interface.js",
+                "js/web.js"
             ],
             "css": [
                 "css/interface.css"
