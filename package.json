@@ -2,9 +2,10 @@
   "name": "toloka-web-extension",
   "version": "1.0.0",
   "description": "",
-  "main": "ml/app.js",
+  "main": "src/app.js",
   "scripts": {
-    "test": "node ml/app.js"
+    "test": "node ml/app.js",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/GigPlatform/toloka-web-extension#readme",
   "devDependencies": {
-    "webpack": "^5.65.0"
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1"
   }
 }
