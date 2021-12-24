@@ -15,3 +15,5 @@ $("#testButton").on("click", function(){
         console.log(data);
     });
 });
+
+chrome.browserAction.setBadgeText({text: ""});

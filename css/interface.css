@@ -9,6 +9,10 @@
     overflow-y: auto;
 }
 
+#alertNum {
+    display: none;
+}
+
 #alertPopup {
     display: none;
 }
@@ -130,4 +134,38 @@
 
 .gig-sett-button {
     
+}
+
+.border-bottom {
+    border-bottom: 1px solid black;
+}
+
+.border-top {
+    border-top: 1px solid black;
+}
+
+.alert-num {
+    position: absolute;
+    top: 11px;
+    left: 7px;
+    width: 13px;
+    height: 13px;
+    padding: 0 5px;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    background-color: rgb(66,133,244);
+    border-radius: 10px;
+    color: #fff;
+    display: inline-block;
+    font-size: 6px;
+    font-weight: 700;
+    -webkit-justify-content: center;
+    justify-content: center;
+    line-height: 20px;
+    margin-left: 4px;
+    text-align: center;
+    -webkit-transition: padding .2s,opacity .2s,max-width .2s,min-width .2s,easeInOutCubic;
+    transition: padding .2s,opacity .2s,max-width .2s,min-width .2s,easeInOutCubic;
+    vertical-align: middle;
+    white-space: nowrap;
 }

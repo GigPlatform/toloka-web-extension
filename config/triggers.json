@@ -35,5 +35,23 @@
 		"events": [
 			{"type": "TASK_SUBMITED", "value": "PAGE_LOAD"}
 		]
+	},{
+		"platform": "TOLOKA",
+		"method": "tolokaTasksRemote",
+		"events": [
+			{"type": "MINUTES_0.5"}
+		]
+	},{
+		"platform": "TOLOKA",
+		"method": "tolokaRecommenderPool",
+		"events": [
+			{"type": "MINUTES_0.5"}
+		]
+	},{
+		"platform": "TOLOKA",
+		"method": "tolokaEarningsRemote",
+		"events": [
+			{"type": "MINUTES_1"}
+		]
 	}]
 }

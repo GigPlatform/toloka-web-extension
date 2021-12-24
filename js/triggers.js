@@ -41,6 +41,7 @@ function getStringDate(timestamp) {
 	return (new Date(timestamp)).toISOString().split('T')[0];
 }
 
+
 function getTaskAnalysis(isRemote) {
 	return new Promise((resolve, reject) => {
 		console.log('getTaskAnalysis');
@@ -99,6 +100,106 @@ function getTaskAnalysis(isRemote) {
   	});
 }
 
+function tolokaTaskAnalysis(isRemote) {
+	return new Promise((resolve, reject) => {
+		console.log('tolokaTaskAnalysis');
+    	tolokaQueueDiff(isRemote).then(response => {
+    		console.log(response);
+    		if (response.changed) {
+    			var tasksUrl = 'https://sandbox.toloka.yandex.com/task/';
+    			if (response.added.length > 0) {
+    				for (var taskId of response.added) {
+    					var taskData = response.data[taskId];
+    					console.log(taskData);
+    					// var eventName = taskData.question.type.toUpperCase();
+    					var eventName = taskData.trainingDetails.training?'TRAINING':'TASK';
+    					logEvent(tasksUrl, eventName, {
+    							extra: JSON.stringify(taskData),
+    							type: 'LOGS',
+    							subtype: 'ADDED_TASK'
+    						}
+    					);
+    				}
+    			}
+    			if (response.finished.length > 0) {
+    				for (var taskId of response.finished) {
+    					var taskData = response.data[taskId];
+    					console.log(taskData);
+    					// var eventName = taskData.question.type.toUpperCase();
+    					var eventName = taskData.trainingDetails.training?'TRAINING':'TASK';
+    					logEvent(tasksUrl, eventName, {
+    							extra: JSON.stringify(taskData),
+    							type: 'LOGS',
+    							subtype: 'FINISHED_TASK'
+    						}
+    					);
+    				}
+    			}
+    			if (response.numTasks == 0) {
+					console.log('STATUS');
+			      	getStatus((statusId)=>{
+			      	  	console.log(statusId);
+			      	  	if (statusId == 1) {
+			      	  		console.log('disableButton');
+			      	  		disableButton();
+			      	  		for (var taskId of response.finished) {
+		    					var taskData = response.data[taskId];
+		    					console.log(taskData);
+		    					logEvent(`https://sandbox.toloka.yandex.com/task/${taskData.lightweightTec.poolId}/${taskData.activeAssignments[0].id}`, 'PAGE_LOAD', {
+		    					 		type: 'WORKING',
+		    					 		subtype: 'TASK_SUBMITED'
+		    					 	}
+		    					 );
+		    				}
+		    				setChromeLocal('is_working', false);
+			      	}
+						});
+					}
+    		}
+    	});
+  	});
+}
+
+function tolokaQueueDiff(isRemote) {
+	return new Promise((resolve, reject) => {
+    	tolokaQueue(isRemote).then(response => {
+    		getChromeLocal('tasks', {list:[], data:{}}).then(lastTasks => {
+				var curTasks = response;
+				var added = curTasks.list.filter(x => !lastTasks.list.includes(x));
+				var finished = lastTasks.list.filter(x => !curTasks.list.includes(x));
+				var changed = false;
+				var tasksData = {};
+				var completedData = [];
+				if (added.length > 0 || finished.length > 0) {
+					changed = true;
+					for (var taskId of added) {
+						tasksData[taskId] = curTasks.data[taskId];
+					}
+					for (var taskId of finished) {
+						tasksData[taskId] = lastTasks.data[taskId];
+						completedData.push(tasksData[taskId]);
+					}
+				}
+				var output = {
+					added: added,
+					finished: finished,
+					changed: changed,
+					data: tasksData,
+					numTasks: response.numTasks
+				};
+				setChromeLocal('tasks', curTasks);
+				if (completedData.length > 0) {
+					getChromeLocal('tasks_all', []).then(tasksAll => {
+						tasksAll = tasksAll.concat(completedData);
+						setChromeLocal('tasks_all', tasksAll);
+					});
+				}
+				resolve(output);
+    		});
+    	})
+  	});
+}
+
 function getQueueDiff(isRemote) {
 	return new Promise((resolve, reject) => {
     	getQueue(isRemote).then(response => {
@@ -137,6 +238,78 @@ function getQueueDiff(isRemote) {
     		});
     	})
   	});
+}
+
+function showNotification() {
+	console.log('NEW TASK !!! !!! !!!');
+	chrome.browserAction.setBadgeText({text: "."});
+	console.log('SEND NOTIFICATIONNNNNNN!!!!');
+	notPort.postMessage({available: true});
+}
+
+function tolokaRecommenderCron(isRemote) {
+	tolokaGetNewTasks(isRemote).then(response => {
+		getChromeLocal('pool', {list:[], data:{}}).then(lastTasks => {
+			var curTasks = response;
+			var added = curTasks.list.filter(x => !lastTasks.list.includes(x));
+			if (added.length > 0) {
+				showNotification();
+			}
+			setChromeLocal('pool', curTasks);
+		});
+	});
+}
+
+function tolokaGetNewTasks(isRemote) {
+	return new Promise((resolve, reject) => {
+    var url = 'https://sandbox.toloka.yandex.com/api/task-suite-pool-groups?userLangs=EN';
+    fetch(url, {
+		  "method": "GET",
+		  "mode": "cors",
+		  "credentials": "include"
+		}).then(response => response.json())
+		  .then(data => {
+		    var tasks = [];
+        var tasksData = {};
+        for (var row of data) {
+        	var task_id = `${row.projectId}`;
+        	tasks.push(task_id);
+        	tasksData[task_id] = row;
+        }
+        var output = {
+        	data: tasksData,
+        	list: tasks,
+        	numTasks: tasks.length
+        };
+        resolve(output);
+		});
+  });
+}
+
+function tolokaQueue(isRemote) {
+  return new Promise((resolve, reject) => {
+    var url = 'https://sandbox.toloka.yandex.com/api/i-v3/task-suite-pools?withActiveAssignmentsOnly=true&userLangs=EN';
+    fetch(url, {
+		  "method": "GET",
+		  "mode": "cors",
+		  "credentials": "include"
+		}).then(response => response.json())
+		  .then(data => {
+		    var tasks = [];
+        var tasksData = {};
+        for (var row of data) {
+        	var task_id = `${row.lightweightTec.projectId}_${row.lightweightTec.poolId}`;
+        	tasks.push(task_id);
+        	tasksData[task_id] = row;
+        }
+        var output = {
+        	data: tasksData,
+        	list: tasks,
+        	numTasks: tasks.length
+        };
+        resolve(output);
+		});
+  });
 }
 
 function getQueue(isRemote) {
@@ -243,6 +416,51 @@ function getWage(isRemote) {
   });
 }
 
+function tolokaWage(isRemote) {
+  return new Promise((resolve, reject) => {
+
+    var urlToday = null;
+		urlToday = "https://sandbox.toloka.yandex.com/api/worker/finance/income-log?page=0&size=10&properties=date&direction=DESC";
+
+    var date = getStringDate();
+
+    console.log(urlToday);
+    var totals = {
+		  Total: 0,
+		  Approved: 0,
+		  Pending: 0,
+		  Rejected: 0,
+		  Paid: 0,
+		  Bonuses: 0
+		};
+
+		fetch(urlToday, {
+		  "method": "GET",
+		  "mode": "cors",
+		  "credentials": "include"
+		}).then(response => response.json())
+		  .then(data => {
+		  	var toProcess = false;
+		  	console.log('COMPARE_DATES', data[0].date, date);
+		  	if (data.length > 0 && data[0].date == date) {
+			  	for (var i in data) {
+			  		for (var j in data[i].assignments) {
+			  			var todayRecord = data[i].assignments[j];
+			      	totals.Bonuses += todayRecord.additionalReward;
+			      	totals.Pending += todayRecord.blockedIncome;
+			      	totals.Total += todayRecord.income;
+			  		}
+			  		for (var key of Object.keys(totals)) {
+				  		totals[key] = roundValue(totals[key]);
+				    }
+				    resolve(totals);
+			  		break;
+			  	}
+		  	} 
+		});
+  });
+}
+
 function saveWage(platform, wage) {
 	getChromeLocal('wages', {}).then(wages => {
 		if (!wages.hasOwnProperty(platform))
@@ -292,6 +510,11 @@ function mturkEarningsRemote() {
 	getWage(true).then(totals => saveWage('MTURK', totals));
 }
 
+function tolokaEarningsRemote() {
+	console.log('tolokaEarningsRemote');
+	tolokaWage(true).then(totals => saveWage('TOLOKA', totals));
+}
+
 function mturkTasksLocal() {
 	console.log('mturkTasksLocal');
 	getTaskAnalysis(false);
@@ -300,6 +523,16 @@ function mturkTasksLocal() {
 function mturkTasksRemote() {
 	console.log('mturkTasksRemote');
 	getTaskAnalysis(true);
+}
+
+function tolokaTasksRemote() {
+	console.log('tolokaTasksRemote');
+	tolokaTaskAnalysis(true);
+}
+
+function tolokaRecommenderPool() {
+	console.log('tolokaRecommenderPool');
+	tolokaRecommenderCron(true);
 }
 
 function fiverrEarnings() {

@@ -13,7 +13,7 @@ function processWebsite() {
 
 function processToloka() {
     waitForEl("#header > header > div > div:nth-child(3) , #content > div > div.new-task-page > div.new-task-page__header > div.new-task-page-header-right-actions", function() {
-        drawInterface();
+        drawInterface().then(() => initMessageServer());
     });
 }
 

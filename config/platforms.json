@@ -299,14 +299,55 @@
 		"name": "TOLOKA",
 		"urls": [
 			{
+				"url": "https://sandbox.toloka.yandex.com/tasks",
+				"type": "SEARCHING",
+				"subtype": "TASKS_LIST"
+			},
+			{
 				"url": "https://toloka.yandex.com/tasks",
 				"type": "SEARCHING",
 				"subtype": "TASKS_LIST"
 			},
 			{
+				"url": "https://sandbox.toloka.yandex.com/profile",
+				"type": "PROFILE",
+				"subtype": "WORKER_DASHBOARD"
+			},
+			{
+				"url": "https://toloka.yandex.com/profile",
+				"type": "PROFILE",
+				"subtype": "WORKER_DASHBOARD"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/tasks/active",
+				"type": "SEARCHING",
+				"subtype": "TASK_QUEUE"
+			},
+			{
+				"url": "https://toloka.yandex.com/tasks/active",
+				"type": "SEARCHING",
+				"subtype": "TASK_QUEUE"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/task/(.*)",
+				"type": "WORKING",
+				"subtype": "TASK_STARTED"
+			},
+			{
 				"url": "https://toloka.yandex.com/task/(.*)",
 				"type": "WORKING",
 				"subtype": "TASK_STARTED"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/task/(.*)",
+				"type": "WORKING",
+				"subtype": "TASK_SUBMITED",
+				"js": {
+					"selector": ".base-modal-popup-header__title",
+					"action": "equal",
+					"value": "Thank you",
+					"wait": true
+				}
 			},
 			{
 				"url": "https://toloka.yandex.com/task/(.*)",
@@ -320,9 +361,26 @@
 				}
 			},
 			{
+				"url": "https://sandbox.toloka.yandex.com/messages(.*)",
+				"type": "COMMUNICATION",
+				"subtype": "MESSAGES_READ"
+			},
+			{
 				"url": "https://toloka.yandex.com/messages(.*)",
 				"type": "COMMUNICATION",
 				"subtype": "MESSAGES_READ"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/task/(.*)",
+				"type": "SEARCHING",
+				"subtype": "TASK_INSTRUCTIONS",
+				"js": {
+					"selector": ".base-modal-popup-header__title",
+					"action": "equal",
+					"value": "Instructions",
+					"wait": true
+				}
+				
 			},
 			{
 				"url": "https://toloka.yandex.com/task/(.*)",
@@ -335,6 +393,101 @@
 					"wait": true
 				}
 				
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/achievements",
+				"type": "PROFILE",
+				"subtype": "WORKER_QUALIFICATIONS"
+			},
+			{
+				"url": "https://toloka.yandex.com/achievements",
+				"type": "PROFILE",
+				"subtype": "WORKER_QUALIFICATIONS"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/profile/history(.*)",
+				"type": "PROFILE",
+				"subtype": "WORKER_EARNINGS_DETAILS"
+			},
+			{
+				"url": "https://toloka.yandex.com/profile/history(.*)",
+				"type": "PROFILE",
+				"subtype": "WORKER_EARNINGS_DETAILS"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/profile/money",
+				"type": "PROFILE",
+				"subtype": "WORKER_EARNINGS"
+			},
+			{
+				"url": "https://toloka.yandex.com/profile/money",
+				"type": "PROFILE",
+				"subtype": "WORKER_EARNINGS"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/profile/referral",
+				"type": "PROFILE",
+				"subtype": "REFERRAL"
+			},
+			{
+				"url": "https://toloka.yandex.com/profile/referral",
+				"type": "PROFILE",
+				"subtype": "REFERRAL"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/profile/notifications",
+				"type": "PROFILE",
+				"subtype": "NOTIFICATIONS"
+			},
+			{
+				"url": "https://toloka.yandex.com/profile/notifications",
+				"type": "PROFILE",
+				"subtype": "NOTIFICATIONS"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/messages/notification",
+				"type": "COMMUNICATION",
+				"subtype": "MESSAGES_NOTIFICATION"
+			},
+			{
+				"url": "https://toloka.yandex.com/messages/notification",
+				"type": "COMMUNICATION",
+				"subtype": "MESSAGES_NOTIFICATION"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/messages/admin",
+				"type": "COMMUNICATION",
+				"subtype": "MESSAGES_ADMIN"
+			},
+			{
+				"url": "https://toloka.yandex.com/messages/admin",
+				"type": "COMMUNICATION",
+				"subtype": "MESSAGES_ADMIN"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/messages/requester",
+				"type": "COMMUNICATION",
+				"subtype": "MESSAGES_REQUESTER"
+			},
+			{
+				"url": "https://toloka.yandex.com/messages/requester",
+				"type": "COMMUNICATION",
+				"subtype": "MESSAGES_REQUESTER"
+			},
+			{
+				"url": "https://sandbox.toloka.yandex.com/messages/outbox",
+				"type": "COMMUNICATION",
+				"subtype": "MESSAGES_OUTBOX"
+			},
+			{
+				"url": "https://toloka.yandex.com/messages/outbox",
+				"type": "COMMUNICATION",
+				"subtype": "MESSAGES_OUTBOX"
+			},
+			{
+				"url": "https://we.toloka.ai(.*)",
+				"type": "LEARNING",
+				"subtype": "PLATFORM_HELP"
 			}
 		]
 	}

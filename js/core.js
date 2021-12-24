@@ -266,4 +266,4 @@ function waitForEl(selector, callback) {
       waitForEl(selector, callback);
     }, 100);
   }
-};
+}
