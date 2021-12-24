@@ -2,9 +2,9 @@
   "name": "toloka-web-extension",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "node ml/app.js",
+    "test": "node src/index.js",
     "build": "webpack"
   },
   "repository": {
