@@ -63,6 +63,10 @@ function trackEvent(data) {
   matchATrigger(obj);
 }
 
+function trackTelemetry(eventName, eventData) {
+    console.log('TRACK_EVENT', eventName, eventData);
+}
+
 function getConfiguration() {
   return new Promise((resolve, reject) => {
     getFileContentOnce(configFile)

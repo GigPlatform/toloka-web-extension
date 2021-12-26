@@ -1,6 +1,7 @@
 var websites = {
     "toloka.yandex.com": "processToloka"
 }
+interfaceSource = 'inpage';
 
 function processWebsite() {
     var url = window.location.href;

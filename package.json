@@ -20,5 +20,8 @@
   "devDependencies": {
     "webpack": "^5.65.0",
     "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "^3.12.0"
   }
 }

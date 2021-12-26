@@ -1,7 +1,8 @@
 var maxTasks = 4;
 var globalTasks = null;
-var topTasks = null;
 var sandboxMode = true;
+var topTasks = [];
+var interfaceSource = 'interface';
 
 Object.flatten = function(data) {
     var result = {};
@@ -270,6 +271,7 @@ function drawInterface() {
             $('#alertPopup').toggle();
             approveNotifications();
             $("#alertNum").hide();
+            trackTelemetry('alertClick', {source: interfaceSource});
         });
 
         $("#settButton, #backButton, .gig-sett-button").on("click", () => {
@@ -315,14 +317,14 @@ function approveNotifications() {
     }
 }
 
-function notifyMe() {
+function notifyMe(text, link) {
     if (Notification.permission == 'granted') {
         var notification = new Notification('Culture Fit', {
             icon: 'https://research.hcilab.ml/files/img.png',
-            body: 'Hi! This is Toloka I posted this task: English Comprehension Test',
+            body: text,
         });
         notification.onclick = function() {
-            window.open(`https://${sandboxMode?'sandbox.':''}toloka.yandex.com/tasks`);
+            window.open(link);
         };
     }
 }
@@ -354,10 +356,59 @@ function initMessageServer() {
     var port = chrome.runtime.connect({name: "knockknock"});
     port.postMessage({joke: "Knock knock"});
     port.onMessage.addListener(function(msg) {
-        if (msg.available) {
+        if (msg.action == 'alert') {
             $("#alertNum").show();
+        } else if (msg.action == 'message') {
+            notifyMe(msg.text, msg.link);
         }
     });
+}
+
+function setDataset(tasks) {
+    getChromeLocal('dataset', {}).then(dataset => {
+        tasks.forEach(task => {
+            if (!dataset.hasOwnProperty(task.taskId)) {
+                dataset[task.taskId] = task.task;
+                dataset[task.taskId].requester = task.task.requesterInfo.name.EN;
+                dataset[task.taskId].preference = 0;
+            }
+        });
+        setChromeLocal('dataset', dataset);
+        console.log('DATASET', dataset);
+    });
+}
+
+function updateRequesters(requesterName) {
+    getChromeLocal('requesters', {}).then(requesters => {
+        console.log('REQUESTER NAME', requesterName);
+        if (requesters.hasOwnProperty(requesterName)) {
+            requesters[requesterName] += 1;
+        } else {
+            requesters[requesterName] = 1;
+        }
+        setChromeLocal('requesters', requesters);
+        console.log('REQUESTERS', requesters);
+    });
+}
+
+function updateDataset(event) {
+    getChromeLocal('dataset', {}).then(dataset => {
+        if (dataset.hasOwnProperty(event.taskId)) {
+            dataset[event.taskId].preference += 1;
+        }
+        setChromeLocal('dataset', dataset);
+        console.log('DATASET', dataset);
+    });
+}
+
+function sendTelemetry(eventName, eventData) {
+    console.log('RECORDING TELEMETRY');
+    let event = topTasks[eventData.position];
+    window.open(event.link, '_blank');
+    event.source = interfaceSource;
+    trackTelemetry(eventName, event);
+    updateDataset(event);
+    updateRequesters(event.task.requesterInfo.name.EN);
 }
 
 function populateTasks(tasks) {
@@ -374,15 +425,18 @@ function populateTasks(tasks) {
         globalTasks = tasks;
         var flatTasks = tasks.map(x => Object.flatten(x));
         for (var task of tasks) {
+            console.log(task);
             if (task.availability.available) {
                 if (!task.trainingDetails.training) {
-                    var taskUrl = `https://toloka.yandex.com/task/${task.pools[0].id}?refUuid=${task.refUuid}`;
+                    let taskId = `${task.projectId}_${task.pools[0].id}`;
+                    // var taskUrl = `https://toloka.yandex.com/task/${task.pools[0].id}?refUuid=${task.refUuid}`;
+                    var taskUrl = `https://sandbox.toloka.yandex.com/task/${task.pools[0].id}/${task.refUuid}`;
                     html += `
                         <tr>
                             <td>
                                 <div class="gig-rounded">
                                     <div class="git-label-desc" title="${task.description}">
-                                        <a class="links" href="${taskUrl}" target="_blank">${task.title}</a>
+                                        <div class="links taskLink" data-pos="${count}">${task.title}</div>
                                     </div>
                                     <div>
                                         <!--
@@ -429,7 +483,7 @@ function populateTasks(tasks) {
                                         </span>
                                         <span class="git-label-field">
                                             <div class="git-label-top">
-                                                ${task.projectStats.acceptanceRate}%
+                                                ${task.projectStats.acceptanceRate?task.projectStats.acceptanceRate+'%':'--'}
                                             </div>
                                             <div class="git-label-sub">
                                                 acceptance
@@ -454,6 +508,8 @@ function populateTasks(tasks) {
                     count++;
                     topTasks.push({
                         "title": task.title,
+                        "taskId": taskId,
+                        "task": task,
                         "link": taskUrl
                     });
                     if (count == maxTasks) break;
@@ -462,5 +518,9 @@ function populateTasks(tasks) {
         }
         html += '</table>'
         $('#taskList').html(html);
+        $('.taskLink').on('click', function(){
+            sendTelemetry('taskClick', {position: $(this).data('pos')});
+        });
+        setDataset(topTasks);
     }
 }

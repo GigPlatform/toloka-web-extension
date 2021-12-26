@@ -240,11 +240,27 @@ function getQueueDiff(isRemote) {
   	});
 }
 
-function showNotification() {
+function showNotification(added) {
 	console.log('NEW TASK !!! !!! !!!');
+	console.log('ADDED', added);
 	chrome.browserAction.setBadgeText({text: "."});
 	console.log('SEND NOTIFICATIONNNNNNN!!!!');
-	notPort.postMessage({available: true});
+	if (notPort) {
+		notPort.postMessage({action: 'alert'});
+		getChromeLocal('requesters', {}).then(requesters => {
+			added.forEach(task => {
+				let requesterName = task.requesterInfo.name.EN;
+				if (requesters.hasOwnProperty(requesterName)) {
+					notPort.postMessage({
+						action: 'message', 
+						text: `Hi! This is ${requesterName}, I posted this task: ${task.title}`, 
+						link: `https://sandbox.toloka.yandex.com/task/${task.pools[0].id}/${task.refUuid}`
+					});
+					// `https://toloka.yandex.com/task/${task.pools[0].id}?refUuid=${task.refUuid}`
+				}
+			});
+		});
+	}
 }
 
 function tolokaRecommenderCron(isRemote) {
@@ -253,7 +269,7 @@ function tolokaRecommenderCron(isRemote) {
 			var curTasks = response;
 			var added = curTasks.list.filter(x => !lastTasks.list.includes(x));
 			if (added.length > 0) {
-				showNotification();
+				showNotification(added.map(taskId => curTasks.data[taskId]));
 			}
 			setChromeLocal('pool', curTasks);
 		});

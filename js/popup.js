@@ -1,3 +1,4 @@
+interfaceSource = 'inbrowser';
 drawInterface();
 showTasks();
 
@@ -17,3 +18,4 @@ $("#testButton").on("click", function(){
 });
 
 chrome.browserAction.setBadgeText({text: ""});
+trackTelemetry('alertClick', {source: interfaceSource});
