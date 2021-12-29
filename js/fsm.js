@@ -9,7 +9,7 @@ function init_fsm() {
 }
 
 function fsmInput(obj) {
-	console.log('fsmInput');
+	// console.log('fsmInput');
 	for (var state in states) {
 		processState(state, obj);
 	}
@@ -42,17 +42,17 @@ function evaluateState(stage, state, obj) {
 function processState(state, obj) {
 	//return new Promise((resolve, reject) => {
 		getChromeLocal(state, {}).then(queue => {
-			console.log(obj);
-			console.log(state);
+			// console.log(obj);
+			// console.log(state);
 			if (evaluateState('init', state, obj)) {
-				console.log('INIT', obj);
+				// console.log('INIT', obj);
 				setElementToQueue(state, queue, obj, updatedQueue => {
 					//console.log(clone(updatedQueue));
 					setChromeLocal(state, updatedQueue);
 					//reject();
 				});
 			} else if (evaluateState('end', state, obj)) {
-				console.log('END', obj);
+				// console.log('END', obj);
 				getElementToQueue(state, queue, obj, (lastObj, updatedQueue) => {
 					//console.log(clone(updatedQueue));
 					if (lastObj != null) {
@@ -143,8 +143,8 @@ function fsmReset() {
 
 function saveLapse(state, lastObj, obj) {
 	getChromeLocal('lapses', {}).then(lapses => {
-		console.log('saveLapse');
-		console.log(clone(lapses));
+		// console.log('saveLapse');
+		// console.log(clone(lapses));
 		var lapse = ({
 			"init": lastObj.time,
 			"end": obj.time,
@@ -156,7 +156,7 @@ function saveLapse(state, lastObj, obj) {
 		};
 		//console.log(clone(traverse));
 		setElementToQueue(state, lapses, obj, (lapsesUpdated) => {
-			console.log(clone(lapsesUpdated));
+			// console.log(clone(lapsesUpdated));
 			setChromeLocal('lapses', lapsesUpdated);
 		}, traverse, lapse);
 	});

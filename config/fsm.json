@@ -7,7 +7,7 @@
 	},
 	"working": {
 		"group": ["platform"],
-		"execute": "refreshWage",
+		"execute": "tolokaRefreshWage",
 		"init": [
 			{"activityType": ["TASK_STARTED"], "event": ["PAGE_LOAD"]},
 			{"event": ["SYSTEM_ENABLED_WORKING"]}

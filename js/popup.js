@@ -1,6 +1,6 @@
 interfaceSource = 'inbrowser';
-drawInterface();
-showTasks();
+drawInterface().then(()=>showTasks());
+//showTasks();
 
 $("#saveButton").on("click", function(){
     $(".control").each(function(){

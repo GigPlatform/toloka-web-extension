@@ -1,39 +1,21 @@
 {
 	"triggers": [{
-		"platform": "MTURK",
-		"method": "mturkEarningsRemote",
-		"events": [
-			{"type": "MINUTES_1"}
-		]
-	},{
-		"platform": "MTURK",
-		"method": "mturkTasksRemote",
-		"events": [
-			{"type": "MINUTES_0.5"}
-		]
-	},{
-		"platform": "MTURK",
-		"method": "mturkFilesRemote",
-		"events": [
-			{"type": "MINUTES_60"}
-		]
-	},{
-		"platform": "MTURK",
-		"method": "mturkEarningsLocal",
-		"events": [
-			{"type": "WORKER_EARNINGS_DETAILS", "value": "PAGE_LOAD"}
-		]
-	},{
-		"platform": "MTURK",
-		"method": "allStarted",
+		"platform": "TOLOKA",
+		"method": "tolokaStarted",
 		"events": [
 			{"type": "TASK_STARTED", "value": "PAGE_LOAD"}
 		]
 	},{
-		"platform": "MTURK",
-		"method": "allSubmited",
+		"platform": "TOLOKA",
+		"method": "tolokaSubmited",
 		"events": [
 			{"type": "TASK_SUBMITED", "value": "PAGE_LOAD"}
+		]
+	},{
+		"platform": "TOLOKA",
+		"method": "tolokaRejected",
+		"events": [
+			{"type": "TASK_TIMEOUT", "value": "PAGE_LOAD"}
 		]
 	},{
 		"platform": "TOLOKA",

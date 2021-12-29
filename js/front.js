@@ -2,10 +2,10 @@
 var globalUrl = window.location.href;
 var inactivityMinutes = 1;
 var wasInactive = false;
+backLevel = false;
 
-var libraries = [
-  chrome.extension.getURL("js/store.js")
-];
+var libraries = [];
+// var libraries = [chrome.extension.getURL("js/store.js")];
 
 function init_process() {
   init_triggers('front');
@@ -53,12 +53,21 @@ function loadLibraries(libraries, callback) {
 }
 
 function eventFired(data) {
-  storeObjectLocal(data);
   trackEvent(data);
+  storeObjectLocal(data);  
 }
 
 function storeObjectLocal(data) {
-  runCode("storeObject('" + JSON.stringify(data) + "', 'store')");
+  storeObject(JSON.stringify(data), 'store');
+  // runCode("storeObject('" + JSON.stringify(data) + "', 'store')");
+  // console.log(data);
+  // chrome.runtime.sendMessage(chrome.runtime.id, {
+  //     msg: "params",
+  //     action: "storeObject",
+  //     params: [data, 'store', true]
+  // });
+  // var port = chrome.runtime.connect(chrome.runtime.id, {name: "knockknock"});
+  // port.postMessage({action: "storeObject", params:[data, 'store', true]});
 }
 
 var validated = false;
@@ -161,7 +170,7 @@ function executeValidation(settings, data) {
 
 var stats = {};
 var lastEvents = {};
-function logEvent(event, action, overwrite) {
+function logEvent(event, action, overwrite, otherUrl) {
   var log = true;
   if (action) {
     if (action == 'OUT') {
@@ -194,7 +203,7 @@ function logEvent(event, action, overwrite) {
     }
   }
   if (log) {
-    logURL(globalUrl, event, null, overwrite)
+    logURL(otherUrl?otherUrl:globalUrl, event, null, overwrite)
       .then(data => {
         //console.log(data);
         for (record of data) {

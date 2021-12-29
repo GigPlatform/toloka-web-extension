@@ -1,5 +1,6 @@
 //console.log('YEIII');
 
+var backLevel = true;
 var configFile = 'config/general.json';
 var platformsFile = 'config/platforms.json';
 var blakclistFile = 'config/blacklist.json';

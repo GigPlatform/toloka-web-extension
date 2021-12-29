@@ -2,6 +2,7 @@ var lastTabId = 0;
 var status = 0;
 var tabToUrl = {};
 var notPort = null;
+var modeObj = null;
 
 function init_process() {
   init_triggers('back');
@@ -49,8 +50,8 @@ function getRandomToken() {
 }
 
 function eventFired(data) {
-  storeObject(JSON.stringify(data), 'store');
   trackEvent(data);
+  storeObject(JSON.stringify(data), 'store');
 }
 
 function logEvent(url, event, overwrite) {
@@ -120,19 +121,84 @@ function enableContextMenu() {
 }
 
 function openTabUrl(params, sendResponse) {
-  console.log("_LINK_", params.link);
+  // console.log("_LINK_", params.link);
   chrome.tabs.create({ url: params.link }, function(tab){
-    console.log(tab);
+    // console.log(tab);
     sendResponse({status: "OK_"});
   });
+}
+
+function initialSetup(userId, config) {
+  // console.log('USER_STUDY', config.isUserStudy);
+  if (config.isUserStudy) {
+    var url = config.initialSurveyUrl + userId;
+    chrome.tabs.create({url: url}, function (tab) {
+      console.log("New tab launched");
+    });
+  }
+  if (config.mode != 'PROTOCOL') {
+    config.currentMode = config.mode;
+  } else {
+    if (config.hasOwnProperty('protocol') && config.protocol.length > 0) {
+      config.currentMode = config.protocol[0].mode;
+    } else {
+      config.currentMode = 'ACTIVE';
+    }
+  }
+  let nextDue = config.mode=='PROTOCOL'?config.protocol[0].durationMins:config.studyDurationMins;
+  let modeData = {
+    mode: config.mode,
+    initDate: (new Date()).getTime(),
+    curState: 0,
+    totalStates: config.mode=='PROTOCOL'?config.protocol.length:1,
+    nextDue: (new Date()).getTime() + nextDue*60*1000
+  };
+  setChromeLocal('mode', modeData);
+  setChromeLocal('settings', config);
+  startModeProcess();
+}
+
+function startModeProcess() {
+  modeObj = setInterval(()=>{
+    getChromeLocal('mode',{}).then(modeData => {
+      if (modeData.curState < modeData.totalStates) {
+        let curTime = (new Date()).getTime();
+        if (curTime >= modeData.nextDue) {
+          modeData.curState += 1;
+          if (modeData.mode == 'PROTOCOL') {
+            if (modeData.curState < modeData.totalStates) {
+              getChromeLocal('settings',{}).then(config => {
+                config.currentMode = config.protocol[modeData.curState].mode;
+                modeData.nextDue = (new Date()).getTime() + config.protocol[modeData.curState].durationMins*60*1000;
+                setChromeLocal('settings', config);
+                setChromeLocal('mode', modeData);
+                console.log('TIMER_TICK', modeData);
+              });
+            } else {
+              setChromeLocal('mode', modeData);
+            }
+          } else {
+            setChromeLocal('mode', modeData);
+          }
+        }
+        console.log('TIMER', modeData);
+      }
+    });
+  }, 30*1000);
 }
 
 chrome.runtime.onConnect.addListener(function(port) {
   notPort = port;
   // console.log('SERVER CONNECTEEEEED');
-  console.assert(notPort.name === "knockknock");
+  // console.assert(notPort.name === "knockknock");
   notPort.onMessage.addListener(function(msg) {
     // console.log('SERVER MESSAGEEEEEEE');
+    // console.log(msg);
+    if (msg.hasOwnProperty('action')) {
+      console.log('StoreObj_3');
+      window[msg.action](...msg.params);
+    }
+    notPort.postMessage({action: "none"});
     // if (msg.joke === "Knock knock")
     //    notPort.postMessage({question: "Who's there?"});
   });
@@ -140,13 +206,12 @@ chrome.runtime.onConnect.addListener(function(port) {
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse){
+    // console.log('HAVE A MESSAGGEEEE')
     if (request.msg == 'custom') {
-      console.log('request.action', request.action);
-      if (request.action == 'waitAlert') {
-
-      } else {
-        window[request.action](request.params, sendResponse);
-      }
+      window[request.action](request.params, sendResponse);
+    } else if (request.msg == 'params') {
+      console.log('StoreObj_2');
+      window[request.action](...request.params);
     } else {
       window[request.msg]();
     }
@@ -156,12 +221,11 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onInstalled.addListener(function (object) {
   getUserId().then(userId => {
     getConfiguration().then(config => {
-      if (config.isUserStudy) {
-        var url = config.initialSurveyUrl + userId;
-        chrome.tabs.create({url: url}, function (tab) {
-          console.log("New tab launched");
-        });
-      }
+      // console.log('INIT_CONF', config);
+      setChromeLocal('settings', config).then(() => {
+        // console.log('SETTINGS', config)
+        initialSetup(userId, config);
+      });
     });
   });
 });

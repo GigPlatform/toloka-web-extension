@@ -22,7 +22,10 @@
             "all_frames": true,
             "js": [
                 "js/jquery.js",
+                "js/tf.min.js",
                 "js/core.js",
+                "js/store.js",
+                "js/ai.js",
                 "js/fsm.js",
                 "js/triggers.js",
                 "js/front.js",

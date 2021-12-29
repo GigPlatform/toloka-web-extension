@@ -6,20 +6,21 @@ function storeObject(obj, action) {
 	for (var serverUrl of servers) {
 		if (action == 'store') {
 			var server = serverUrl + '?a=' + action + '&q=' + encodeURIComponent(obj);
-			console.log('SEND TO SERVER');
-			console.log(server);
+			// console.log('SEND TO SERVER');
+			// console.log(server);
 			try {
 				fetch(server)
-				  .then(function(response) {
-			         console.log('GET FROM SERVER');
-					 
-			         return response.json();
-				   })
-				  .then(function(myJson) {
-				     console.log(JSON.stringify(myJson));
-				   });
+				    .then((response) => {
+						if (response.ok) {
+							return response.json();
+						}
+					})
+				    .then(function(myJson) {
+						// console.log(JSON.stringify(myJson));
+				     })
+				    .catch((error)=>{});
 			} catch(e) {
-				console.log(e);
+				// console.log(e);
 			}
 		} else {
 			var formData = new FormData();
@@ -35,10 +36,10 @@ function storeObject(obj, action) {
 			         return response.text();
 				   })
 				  .then(function(myJson) {
-				     console.log(myJson);
+				     // console.log(myJson);
 				   });
 			} catch(e) {
-				console.log(e);
+				// console.log(e);
 			}
 		}
 	}
