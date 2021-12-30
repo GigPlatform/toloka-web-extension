@@ -275,7 +275,8 @@ if (browser.pageAction) {
   });
 }
 
-browser.tabs.onSelectionChanged.addListener(function(tabId, tabObj) {
+// browser.tabs.onSelectionChanged.addListener(function(tabId, tabObj) {
+browser.tabs.onActivated.addListener(function(tabId, tabObj) {
   // console.log('CHANGED');
   lastTabId = tabId;
   if (browser.pageAction) {
@@ -307,7 +308,7 @@ browser.windows.onFocusChanged.addListener((window) => {
 });
 */
 
-if(typeof browser.app.isInstalled!=='undefined'){
-}
+// if(typeof browser.app.isInstalled!=='undefined'){
+// }
 
 init_process();

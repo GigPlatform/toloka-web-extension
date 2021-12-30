@@ -5,7 +5,7 @@ var wasInactive = false;
 backLevel = false;
 
 var libraries = [];
-// var libraries = [browser.extension.getURL("js/store.js")];
+// var libraries = [browser.runtime.getURL("js/store.js")];
 
 function init_process() {
   init_triggers('front');

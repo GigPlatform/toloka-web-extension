@@ -756,7 +756,7 @@ function startTriggers(data, mode) {
 }
 
 function init_triggers(mode) {
-  fetch(browser.extension.getURL(triggersFile))
+  fetch(browser.runtime.getURL(triggersFile))
     .then(r => r.json())
     .then(data => startTriggers(data, mode));
 }

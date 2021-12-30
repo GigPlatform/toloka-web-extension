@@ -1,5 +1,5 @@
 var websites = {
-    "toloka.yandex.com": "processToloka"
+    "toloka.yandex.com": processToloka
 }
 var lastUrl = window.location.href;
 var injectedScript = false;
@@ -10,12 +10,13 @@ function processWebsite() {
     var url = window.location.href;
     for (var website in websites) {
         if (url.indexOf(website) != -1) {
-            window[websites[website]]();
+            websites[website]();
         }
     }
 }
 
 function processToloka() {
+    // console.log('INJECTING');
     if (!injectedScript) {
         initMessageEvent();
         injectFile('js/inject.js').then(() => startClientServer());

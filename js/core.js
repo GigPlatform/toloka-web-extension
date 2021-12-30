@@ -47,7 +47,7 @@ var fileContent = {};
 function getFileContentOnce(filePath) {
   return new Promise((resolve, reject) => {
     if (!fileContent.hasOwnProperty(filePath)) {
-      fetch(browser.extension.getURL(filePath)).then(r => r.json())
+      fetch(browser.runtime.getURL(filePath)).then(r => r.json())
         .then(content => {
           fileContent[filePath] = content;
           resolve(fileContent[filePath]);
