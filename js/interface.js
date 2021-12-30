@@ -180,7 +180,7 @@ function drawInterface() {
                     $("#tasksForm input:checkbox:checked").each(function() {
                         var taskPos = parseInt(this.id.split('_')[1]);
                         // console.log("_LINK_", topTasks[taskPos]);
-                        chrome.runtime.sendMessage({
+                        browser.runtime.sendMessage({
                             msg: "custom",
                             action: "openTabUrl",
                             params: topTasks[taskPos],
@@ -243,7 +243,7 @@ function drawInterface() {
             }
             $("#alertImage").on("click", (event) => {
                 event.stopImmediatePropagation();                
-                console.log('ALERT_CLICK', $('#alertPopup').is(":hidden"));
+                // console.log('ALERT_CLICK', $('#alertPopup').is(":hidden"));
                 if ($('#alertPopup').is(":hidden")) {
                 //  getActiveTasks().then(tasks => populateTasks(tasks));
                     drawInterface().then(()=>showTasks());
@@ -301,7 +301,7 @@ function sendTelemetry(eventName, eventData) {
 }
 
 function initMessageServer() {
-    var port = chrome.runtime.connect({name: "knockknock"});
+    var port = browser.runtime.connect({name: "knockknock"});
     port.postMessage({joke: "Knock knock"});
     port.onMessage.addListener(function(msg) {
         if (msg.action == 'alert') {
@@ -334,7 +334,7 @@ function populateTasks(tasks) {
             topTasks = [];
             augmentData(tasks);
             tasks = getRankedResults(tasks);
-            console.log(tasks);
+            // console.log(tasks);
             globalTasks = tasks;
             for (var task of tasks) {
                 // console.log(task);

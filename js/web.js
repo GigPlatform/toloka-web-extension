@@ -66,7 +66,7 @@ function initMessageEvent() {
 function injectFile(fileName) {
     return new Promise((resolve, reject) => {
         var s = document.createElement('script');
-        s.src = chrome.runtime.getURL(fileName);
+        s.src = browser.runtime.getURL(fileName);
         s.onload = function() {
             resolve();
             // this.remove();
@@ -83,7 +83,7 @@ function injectText(text) {
 }
 
 function startClientServer() {
-    let text = `initClientServer("${chrome.runtime.id}");`;
+    let text = `initClientServer("${browser.runtime.id}");`;
     injectText(text);
 }
 

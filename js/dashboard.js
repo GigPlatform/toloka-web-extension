@@ -11,7 +11,7 @@ function init() {
 }
 
 function syncData() {
-	chrome.storage.local.get(['user_id', 'lapses', 'wages', 'installed_time', 'tasks', 'tasks_all'], (result)=>{
+	browser.storage.local.get(['user_id', 'lapses', 'wages', 'installed_time', 'tasks', 'tasks_all']).then((result)=>{
       storeObject(JSON.stringify(result), 'local');
     });
 }
@@ -44,7 +44,7 @@ function resetData() {
 	for (var state of states) {
 		newState[state] = {};
 	}
-	chrome.storage.local.set(newState, ()=>{});
+	browser.storage.local.set(newState).then(()=>{});
 	document.getElementById('wageTable').innerHTML = '';
 	document.getElementById('timeTable').innerHTML = '';
 	document.getElementById('chartContainer').innerHTML = '';
@@ -94,7 +94,7 @@ function timeToText(duration) {
 }
 
 function showWagesDetails(displayDetails) {
-	chrome.storage.local.get(['wages', 'lapses'], (result)=>{
+	browser.storage.local.get(['wages', 'lapses']).then((result)=>{
 		// document.getElementById('wageTable').innerHTML += JSON.stringify(wages);
 		if (result.hasOwnProperty('wages') && result.hasOwnProperty('lapses')) {
 			var wages = result.wages;
@@ -155,22 +155,22 @@ function showWagesDetails(displayDetails) {
 				var valFinal = 0;
 				var earnings = 0;
 				var earningsAll = 0;
-				console.log(buckets);
-				console.log(wages[platform].records);
-				console.log('WAGES_RECORDS');
+				// console.log(buckets);
+				// console.log(wages[platform].records);
+				// console.log('WAGES_RECORDS');
 				var now = new Date();
 				var todayTime = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 				for (var i = 1; i < wages[platform].records.length; i++) {
 					if (wages[platform].records[i].init.time >= todayTime) {
-						console.log(wages[platform].records[i].diff.value);
+						// console.log(wages[platform].records[i].diff.value);
 						earningsAll += wages[platform].records[i].diff.value;
 					}
 				}
-				console.log('BUCKETS');
+				// console.log('BUCKETS');
 				for (var i in buckets) {
-					console.log(i);
+					// console.log(i);
 					wage = wages[platform].records[i];
-					console.log(wage.diff.value);
+					// console.log(wage.diff.value);
 					earnings += wage.diff.value;
 					output += '<tr><td colspan="3">';
 					output += ' Earnings: <span class="tableValue">$ ' + wage.diff.value.toFixed(2) + '</span>';
@@ -225,7 +225,7 @@ function showWagesDetails(displayDetails) {
 					output += '</tr>';
 				}
 				output += '</table>';
-				//console.log(sumTotals);
+				// console.log(sumTotals);
 				if (Object.keys(sumTotals).length > 0) {
 					document.getElementById('resultsDescription').style.display = 'block';
 					document.getElementById('totalEarnings').innerHTML = earningsAll.toFixed(2);
@@ -269,7 +269,7 @@ function timestampToMinutes(timestamp) {
 }
 
 function showWages() {
-	chrome.storage.local.get(['wages', 'lapses'], (result)=>{
+	browser.storage.local.get(['wages', 'lapses']).then((result)=>{
 		// document.getElementById('wageTable').innerHTML += JSON.stringify(wages);
 		var initialDate = substractDays(7);
 		if (result.hasOwnProperty('wages') && result.hasOwnProperty('lapses')) {
@@ -277,19 +277,19 @@ function showWages() {
 			var wages = result.wages;
 			for (var platform in wages) {
 				for (var i = fromIndex; i < wages[platform].records.length; i++) {
-					//console.log(wages[platform].records[i]);
+					// console.log(wages[platform].records[i]);
 				}
 			}
 			var buckets = {};
 			var lapses = result.lapses;
-			console.log(lapses);
+			// console.log(lapses);
 			for (var state in lapses) {
 				for (var platform in lapses[state]) {
 					for (var activity in lapses[state][platform]) {
 						if (activity != 'OTHER') {
 							for (var event in lapses[state][platform][activity]) {
 								for (var record of lapses[state][platform][activity][event]) {
-									//console.log(state, platform, activity, event);
+									// console.log(state, platform, activity, event);
 									var initDate = toDateString(record.init);
 									var endDate = toDateString(record.end);
 									if (initDate >= initialDate || endDate >= initialDate) {
@@ -324,7 +324,7 @@ function showWages() {
 					}
 				}
 			}
-			console.log(buckets);
+			// console.log(buckets);
 			plotStackedChart(buckets, "chartContainer");
 		}
 	});
@@ -377,11 +377,11 @@ function plotStackedChart(buckets, container) {
 }
 
 function showLapses() {
-	chrome.storage.local.get(['lapses'], (result)=>{
+	browser.storage.local.get(['lapses']).then((result)=>{
 		var count = 0;
 		var output = '';
 		var totals = {};
-		//console.log(result);
+		// console.log(result);
 		if (result.hasOwnProperty('lapses')) {
 			output += '<div id="pieContainer" class="plot"></div>';
 			for (var state in result.lapses) {
@@ -454,7 +454,7 @@ function showLapses() {
 function styleTables() {
 	var tables = document.querySelectorAll(".dynTable")
 	for (var table of tables) {
-		//console.log(table.id);
+		// console.log(table.id);
 		var table = new Tabulator('#' + table.id);
 	}
 }
@@ -492,7 +492,7 @@ function toggleDataSeries(e) {
 }
 
 function toogleDetails() {
-	//console.log(document.getElementById('details').style.display);
+	// console.log(document.getElementById('details').style.display);
 	if(!document.getElementById('details').style.display || document.getElementById('details').style.display == 'none') {
 		document.getElementById('details').style.display = 'block';
 		document.getElementById('toogleDetails').innerHTML = 'HIDE DETAILS';

@@ -12,18 +12,18 @@ function init_process() {
 }
 
 function getStatus(callback) {
-  chrome.storage.local.get(['working_status'], function (result) {
+  browser.storage.local.get(['working_status']).then((result) => {
     if (result.hasOwnProperty('working_status')) {
       status = result['working_status'];
     } else {
-      chrome.storage.local.set({'working_status': status}, function(){});
+      setChromeLocal('working_status', status);
     }
     callback(status);
   });
 }
 
 function toogleStatus(callback) {
-  chrome.storage.local.get(['working_status'], (result)=>{
+  browser.storage.local.get(['working_status']).then((result)=>{
     if (result.hasOwnProperty('working_status')) {
       status = result['working_status'];
     }
@@ -32,7 +32,7 @@ function toogleStatus(callback) {
     } else {
       status = 1;
     }
-    chrome.storage.local.set({'working_status': status}, ()=>{});
+    setChromeLocal('working_status', status);
     callback(status);
   });
 }
@@ -59,7 +59,7 @@ function logEvent(url, event, overwrite) {
    .then(data => {
      for (record of data) {
        if (record.extra == null) {
-         //console.log(record.data);
+         // console.log(record.data);
          eventFired(record.data);
        }
      }
@@ -68,45 +68,45 @@ function logEvent(url, event, overwrite) {
 
 function getUserId() {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get(['user_id'], (result) => {
-      if (!result.hasOwnProperty('user_id')) {
-        var userId = getRandomToken();
-        chrome.storage.local.set({'user_id': userId}, () => {});
-        chrome.storage.local.set({'installed_time': (new Date()).getTime()}, () => {});
+    getChromeLocal('user_id', null).then(userId => {
+      if (!userId) {
+        userId = getRandomToken();
+        setChromeLocal('user_id', userId);
+        setChromeLocal('installed_time', (new Date()).getTime());
         resolve(userId);
       } else {
-        resolve(result.user_id);
+        resolve(userId);
       }
     });
   });
 }
 
 function enableButton() {
-  chrome.storage.local.set({'working_status': 1}, ()=>{
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      //console.log('ENABLED_BACK');
-      if (chrome.pageAction) {
-        chrome.pageAction.setIcon({path: "icon1.jpg", tabId: tabs[0].id});
+  setChromeLocal('working_status', 1).then(()=>{
+    browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+      // console.log('ENABLED_BACK');
+      if (browser.pageAction) {
+        browser.pageAction.setIcon({path: "icon1.jpg", tabId: tabs[0].id});
       }
     });
   });
 }
 
 function disableButton() {
-  chrome.storage.local.set({'working_status': 0}, ()=>{
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      //console.log('DISABLED_BACK');
-      if (chrome.pageAction) {
-        chrome.pageAction.setIcon({path: "icon0.jpg", tabId: tabs[0].id});
+  setChromeLocal('working_status', 0).then(()=>{
+    browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+      // console.log('DISABLED_BACK');
+      if (browser.pageAction) {
+        browser.pageAction.setIcon({path: "icon0.jpg", tabId: tabs[0].id});
       }
     });
   });
 }
 
 function genericOnClick(info, tab) {
-  console.log("item " + info.menuItemId + " was clicked");
-  console.log("info: " + JSON.stringify(info));
-  console.log("tab: " + JSON.stringify(tab));
+  // console.log("item " + info.menuItemId + " was clicked");
+  // console.log("info: " + JSON.stringify(info));
+  // console.log("tab: " + JSON.stringify(tab));
 }
 
 function enableContextMenu() {
@@ -114,15 +114,15 @@ function enableContextMenu() {
   for (var i = 0; i < contexts.length; i++) {
     var context = contexts[i];
     var title = "Test '" + context + "' menu item";
-    var id = chrome.contextMenus.create({"title": title, "contexts":[context],
+    var id = browser.contextMenus.create({"title": title, "contexts":[context],
                                          "onclick": genericOnClick});
-    //console.log("'" + context + "' item:" + id);
+    // console.log("'" + context + "' item:" + id);
   }
 }
 
 function openTabUrl(params, sendResponse) {
   // console.log("_LINK_", params.link);
-  chrome.tabs.create({ url: params.link }, function(tab){
+  browser.tabs.create({ url: params.link }).then((tab) => {
     // console.log(tab);
     sendResponse({status: "OK_"});
   });
@@ -132,8 +132,8 @@ function initialSetup(userId, config) {
   // console.log('USER_STUDY', config.isUserStudy);
   if (config.isUserStudy) {
     var url = config.initialSurveyUrl + userId;
-    chrome.tabs.create({url: url}, function (tab) {
-      console.log("New tab launched");
+    browser.tabs.create({url: url}).then((tab) => {
+      // console.log("New tab launched");
     });
   }
   if (config.mode != 'PROTOCOL') {
@@ -172,7 +172,7 @@ function startModeProcess() {
                 modeData.nextDue = (new Date()).getTime() + config.protocol[modeData.curState].durationMins*60*1000;
                 setChromeLocal('settings', config);
                 setChromeLocal('mode', modeData);
-                console.log('TIMER_TICK', modeData);
+                // console.log('TIMER_TICK', modeData);
               });
             } else {
               setChromeLocal('mode', modeData);
@@ -181,13 +181,13 @@ function startModeProcess() {
             setChromeLocal('mode', modeData);
           }
         }
-        console.log('TIMER', modeData);
+        // console.log('TIMER', modeData);
       }
     });
   }, 30*1000);
 }
 
-chrome.runtime.onConnect.addListener(function(port) {
+browser.runtime.onConnect.addListener(function(port) {
   notPort = port;
   // console.log('SERVER CONNECTEEEEED');
   // console.assert(notPort.name === "knockknock");
@@ -195,7 +195,7 @@ chrome.runtime.onConnect.addListener(function(port) {
     // console.log('SERVER MESSAGEEEEEEE');
     // console.log(msg);
     if (msg.hasOwnProperty('action')) {
-      console.log('StoreObj_3');
+      // console.log('StoreObj_3');
       window[msg.action](...msg.params);
     }
     notPort.postMessage({action: "none"});
@@ -204,13 +204,13 @@ chrome.runtime.onConnect.addListener(function(port) {
   });
 });
 
-chrome.runtime.onMessage.addListener(
+browser.runtime.onMessage.addListener(
   function(request, sender, sendResponse){
     // console.log('HAVE A MESSAGGEEEE')
     if (request.msg == 'custom') {
       window[request.action](request.params, sendResponse);
     } else if (request.msg == 'params') {
-      console.log('StoreObj_2');
+      // console.log('StoreObj_2');
       window[request.action](...request.params);
     } else {
       window[request.msg]();
@@ -218,7 +218,7 @@ chrome.runtime.onMessage.addListener(
   }
 );
 
-chrome.runtime.onInstalled.addListener(function (object) {
+browser.runtime.onInstalled.addListener(function (object) {
   getUserId().then(userId => {
     getConfiguration().then(config => {
       // console.log('INIT_CONF', config);
@@ -230,36 +230,36 @@ chrome.runtime.onInstalled.addListener(function (object) {
   });
 });
 
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   // Note: this event is fired twice:
   // Once with `changeInfo.status` = "loading" and another time with "complete"
   tabToUrl[tabId] = tab.url;
-  if (chrome.pageAction) {
-    chrome.pageAction.show(tabId);
+  if (browser.pageAction) {
+    browser.pageAction.show(tabId);
     getStatus((statusId)=>{
-      chrome.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
+      browser.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
     });
   }
 });
 
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-  //console.log('LOADED');
+browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
+  // console.log('LOADED');
   lastTabId = tabs[0].id;
-  if (chrome.pageAction) {
-    chrome.pageAction.show(lastTabId);
+  if (browser.pageAction) {
+    browser.pageAction.show(lastTabId);
     getStatus((statusId)=>{
-      chrome.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
+      browser.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
     });
   }
 });
 
-if (chrome.pageAction) {
-  chrome.pageAction.onClicked.addListener(function(tab) {
-    //console.log('CLICKED');
+if (browser.pageAction) {
+  browser.pageAction.onClicked.addListener(function(tab) {
+    // console.log('CLICKED');
     lastTabId = tab.id;
     toogleStatus((statusId)=>{
-      chrome.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
-      chrome.storage.local.get(['is_working', 'working_on'], (result) => {
+      browser.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
+      browser.storage.local.get(['is_working', 'working_on']).then((result) => {
         if (result.hasOwnProperty('is_working') && result.hasOwnProperty('working_on')) {
           var is_working = result['is_working'];
           var working_on = result['working_on'];
@@ -275,31 +275,31 @@ if (chrome.pageAction) {
   });
 }
 
-chrome.tabs.onSelectionChanged.addListener(function(tabId, tabObj) {
-  //console.log('CHANGED');
+browser.tabs.onSelectionChanged.addListener(function(tabId, tabObj) {
+  // console.log('CHANGED');
   lastTabId = tabId;
-  if (chrome.pageAction) {
-    chrome.pageAction.show(lastTabId);
+  if (browser.pageAction) {
+    browser.pageAction.show(lastTabId);
     getStatus((statusId)=>{
-      chrome.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
+      browser.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
     });
   }
-  chrome.tabs.getSelected(null, (tab) => {
+  browser.tabs.query({active: true}).then((tab) => {
     if (tab) {
       logEvent(tab.url, 'TAB_CHANGE');
     }
   });
-  // chrome.browserAction.setBadgeText({text: "."});
+  // browser.browserAction.setBadgeText({text: "."});
 });
 
-chrome.tabs.onRemoved.addListener(function(tabId, info) {
+browser.tabs.onRemoved.addListener(function(tabId, info) {
   logEvent(tabToUrl[tabId], 'TAB_CLOSED');
   delete tabToUrl[tabId];
 });
 
 /*
-chrome.windows.onFocusChanged.addListener((window) => {
-  chrome.windows.getCurrent({populate:true}, (windowObj) => {
+browser.windows.onFocusChanged.addListener((window) => {
+  browser.windows.getCurrent({populate:true}, (windowObj) => {
     for (var tab of windowObj.tabs)
       if (tab.active)
         logEvent(tab.url, windowObj.focused?'WINDOW_FOCUS':'WINDOW_BLUR');
@@ -307,7 +307,7 @@ chrome.windows.onFocusChanged.addListener((window) => {
 });
 */
 
-if(typeof chrome.app.isInstalled!=='undefined'){
+if(typeof browser.app.isInstalled!=='undefined'){
 }
 
 init_process();

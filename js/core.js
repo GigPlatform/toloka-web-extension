@@ -19,13 +19,13 @@ RegExp.escape = function(string) {
 
 function getChromeLocal(varName, defaultValue) {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get([varName], (result)=>{
+    browser.storage.local.get([varName]).then((result)=>{
       if (result.hasOwnProperty(varName)) {
         resolve(result[varName]);
       } else {
         var value = {};
         value[varName] = defaultValue;
-        chrome.storage.local.set(value, ()=>{
+        browser.storage.local.set(value).then(()=>{
           resolve(defaultValue);
         });
       }
@@ -37,7 +37,7 @@ function setChromeLocal(varName, value) {
   return new Promise((resolve, reject) => {
     var record = {};
     record[varName] = value;
-    chrome.storage.local.set(record, ()=>{
+    browser.storage.local.set(record).then(()=>{
       resolve(record);
     });
   });
@@ -47,7 +47,7 @@ var fileContent = {};
 function getFileContentOnce(filePath) {
   return new Promise((resolve, reject) => {
     if (!fileContent.hasOwnProperty(filePath)) {
-      fetch(chrome.extension.getURL(filePath)).then(r => r.json())
+      fetch(browser.extension.getURL(filePath)).then(r => r.json())
         .then(content => {
           fileContent[filePath] = content;
           resolve(fileContent[filePath]);
@@ -150,7 +150,7 @@ function logSite(obj, globalUrl, event, extra, overwrite) {
   return new Promise((resolve, reject) => {
     try {
       //console.log(chrome);
-      chrome.storage.local.get(['working_status','user_id'], (result) => {
+      browser.storage.local.get(['working_status','user_id']).then((result) => {
         var extra = null;
         obj.current = globalUrl;
         obj.time = (new Date()).getTime();

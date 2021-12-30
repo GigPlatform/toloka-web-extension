@@ -47,26 +47,26 @@ function processState(state, obj) {
 			if (evaluateState('init', state, obj)) {
 				// console.log('INIT', obj);
 				setElementToQueue(state, queue, obj, updatedQueue => {
-					//console.log(clone(updatedQueue));
+					// console.log(clone(updatedQueue));
 					setChromeLocal(state, updatedQueue);
-					//reject();
+					// reject();
 				});
 			} else if (evaluateState('end', state, obj)) {
 				// console.log('END', obj);
 				getElementToQueue(state, queue, obj, (lastObj, updatedQueue) => {
-					//console.log(clone(updatedQueue));
+					// console.log(clone(updatedQueue));
 					if (lastObj != null) {
-						//console.log('lastObj');
-						//console.log(lastObj);
+						// console.log('lastObj');
+						// console.log(lastObj);
 						setChromeLocal(state, updatedQueue);
 						saveLapse(state, lastObj, obj);
 						if (states[state].hasOwnProperty('execute'))
 							window[states[state].execute](lastObj, obj);
-						//resolve(lastObj);
+						// resolve(lastObj);
 					}
 				});
 			} else {
-				//reject();
+				// reject();
 			}
 		});
 	//});
@@ -138,7 +138,7 @@ function fsmReset() {
 	for (var state in states) {
 		newStatus[state] = {};
 	}
-	chrome.storage.local.set(newStatus, ()=>{});
+	browser.storage.local.set(newStatus);
 }
 
 function saveLapse(state, lastObj, obj) {
@@ -154,7 +154,7 @@ function saveLapse(state, lastObj, obj) {
 			"items": [state, "platform", "activity", "activityType"],
 			"trav": lapses
 		};
-		//console.log(clone(traverse));
+		// console.log(clone(traverse));
 		setElementToQueue(state, lapses, obj, (lapsesUpdated) => {
 			// console.log(clone(lapsesUpdated));
 			setChromeLocal('lapses', lapsesUpdated);

@@ -11,20 +11,20 @@ function getCurrentDateTime() {
 }
 
 function triggersReset() {
-	chrome.storage.local.set({wages:{}}, ()=>{});
+	setChromeLocal('wages', {});
 }
 
 function allStarted(obj) {
 	//console.log('ENABLE');
-	chrome.runtime.sendMessage({ msg: "enableButton" });
+	browser.runtime.sendMessage({ msg: "enableButton" });
 	setChromeLocal('is_working', true);
 	setChromeLocal('working_on', obj.platform);
 }
 
 function allSubmited(obj) {
-	//console.log('DISABLE');
-	//console.log(obj);
-	chrome.runtime.sendMessage({ msg: "disableButton" });
+	// console.log('DISABLE');
+	// console.log(obj);
+	browser.runtime.sendMessage({ msg: "disableButton" });
 	setChromeLocal('is_working', false);
 }
 
@@ -41,19 +41,19 @@ function tolokaSwitchWorking() {
 }
 
 function tolokaStarted(obj) {
-	console.log('TASK STARTED');
+	// console.log('TASK STARTED');
 	let urlParts = tolokaUrlTaskId(obj.url);
 	let taskId = urlParts[0];
-	console.log(taskId);
+	// console.log(taskId);
   updateDataset(taskId, null, {status: 1});
   updateFeatures(taskId, null, {status: 1});
-	// chrome.runtime.sendMessage({ msg: "enableButton" });
+	// browser.runtime.sendMessage({ msg: "enableButton" });
 	setChromeLocal('is_working', true);
 	setChromeLocal('working_on', obj.platform);
 }
 
 function tolokaSubmited(obj) {
-	console.log('TASK COMPLETED');
+	// console.log('TASK COMPLETED');
 	let urlParts = tolokaUrlTaskId(obj.url);
 	let taskId = urlParts[0];
   updateDataset(taskId, null, {status: 2}).then(()=>{
@@ -62,13 +62,13 @@ function tolokaSubmited(obj) {
   updateFeatures(taskId, null, {status: 2}).then(()=>{
   	removeActiveFeature(taskId);
   });
-	// chrome.runtime.sendMessage({ msg: "disableButton" });
+	// browser.runtime.sendMessage({ msg: "disableButton" });
 	setChromeLocal('is_working', false);
 	tolokaSwitchWorking()
 }
 
 function tolokaRejected(obj) {
-	console.log('TASK REJECTED');
+	// console.log('TASK REJECTED');
 	if (activeTasks <= 1) {
 		setChromeLocal('is_working', false);
 		tolokaSwitchWorking()		
@@ -76,8 +76,8 @@ function tolokaRejected(obj) {
 }
 
 function rejectedTask() {
-  //console.log('REJECTED_TASK');
-  chrome.runtime.sendMessage({ msg: "disableButton" });
+  // console.log('REJECTED_TASK');
+  browser.runtime.sendMessage({ msg: "disableButton" });
 	setChromeLocal('is_working', false);
 }
 
@@ -91,7 +91,7 @@ function tolokaRefreshWage() {
 }
 
 function tolokaTaskCompleted() {
-	console.log('FSM TASK COMPLETED');
+	// console.log('FSM TASK COMPLETED');
 	let urlParts = tolokaUrlTaskId(window.location.href);
 	let taskId = urlParts[0];
   // updateDataset(taskId, null, {status: 2});
@@ -310,7 +310,7 @@ function getQueueDiff(isRemote) {
 
 function sendNotification(notType, params) {
 	if (notType == 'brow') {
-		chrome.browserAction.setBadgeText({text: params});
+		browser.browserAction.setBadgeText({text: params});
 	} else if (notType == 'page') {
 		if (notPort) {
 			notPort.postMessage({action: params});
@@ -325,7 +325,7 @@ function sendNotification(notType, params) {
 function showNotification(added) {
 	getChromeLocal('settings', {}).then(config => {
 		setChromeLocal('is_working', false).then(isWorking => {
-			console.log('NEW TASK !!! !!! !!!');
+			// console.log('NEW TASK !!! !!! !!!');
 			// console.log('ADDED', added);
 			let notType = '';
 			let params = '';
@@ -481,7 +481,7 @@ function getQueue(isRemote) {
 
 function mturkFilesRemote() {
 	// console.log('mturkFilesRemote');
-	chrome.storage.local.get(['user_id', 'lapses', 'wages', 'installed_time', 'tasks', 'tasks_all'], (result)=>{
+	browser.storage.local.get(['user_id', 'lapses', 'wages', 'installed_time', 'tasks', 'tasks_all']).then((result)=>{
       // console.log(result);
       storeObject(JSON.stringify(result), 'local');
     });
@@ -512,7 +512,7 @@ function getWage(isRemote) {
 	};
     getDOMNode(urlToday).then(node => {
       var elements = node.querySelectorAll('#MainContent div[data-react-props]');
-      //console.log(elements);
+      // console.log(elements);
       for (var element of elements) {
         var data = JSON.parse(element.getAttribute('data-react-props'));
         if (data.hasOwnProperty('bodyData')) {
@@ -533,7 +533,7 @@ function getWage(isRemote) {
       }
       getDOMNode(urlDash).then(node => {
 	    var elements = node.querySelectorAll('#MainContent div[data-react-props]');
-	    //console.log(elements);
+	    // console.log(elements);
 	    for (var element of elements) {
 	      var data = JSON.parse(element.getAttribute('data-react-props'));
 	      if (data.hasOwnProperty('bodyData')) {
@@ -632,62 +632,62 @@ function saveWage(platform, wage) {
 		// console.log('WAGES')
 		// console.log(wages)
 		setChromeLocal('wages', wages);
-		//console.log(wages);
+		// console.log(wages);
 	});
 }
 
 function mturkEarningsLocal() {
-	console.log('mturkEarningsLocal');
+	// console.log('mturkEarningsLocal');
 	getWage(false).then(totals => saveWage('MTURK', totals));
 }
 
 function mturkEarningsRemote() {
-	console.log('mturkEarningsRemote');
+	// console.log('mturkEarningsRemote');
 	getWage(true).then(totals => saveWage('MTURK', totals));
 }
 
 function tolokaEarningsRemote() {
-	console.log('tolokaEarningsRemote');
+	// console.log('tolokaEarningsRemote');
 	tolokaWage(true).then(totals => saveWage('TOLOKA', totals));
 }
 
 function mturkTasksLocal() {
-	console.log('mturkTasksLocal');
+	// console.log('mturkTasksLocal');
 	getTaskAnalysis(false);
 }
 
 function mturkTasksRemote() {
-	console.log('mturkTasksRemote');
+	// console.log('mturkTasksRemote');
 	getTaskAnalysis(true);
 }
 
 function tolokaTasksRemote() {
-	console.log('tolokaTasksRemote');
+	// console.log('tolokaTasksRemote');
 	tolokaTaskAnalysis(true);
 }
 
 function tolokaRecommenderPool() {
-	console.log('tolokaRecommenderPool');
+	// console.log('tolokaRecommenderPool');
 	tolokaRecommenderCron(true);
 }
 
 function fiverrEarnings() {
-	console.log('fiverrEarnings');
+	// console.log('fiverrEarnings');
 }
 
 function freelancerEarnings() {
-	console.log('fiverrEarnings');
+	// console.log('fiverrEarnings');
 }
 
 function upworkEarnings() {
-	console.log('fiverrEarnings');
+	// console.log('fiverrEarnings');
 }
 
 function platformEnable(platform) {
 	getChromeLocal('enabled_platforms', {}).then(platforms => {
 		if (!platforms.hasOwnProperty(platform)) {
 			platforms[platform] = true;
-			chrome.storage.local.set({'enabled_platforms': platforms}, ()=>{});
+			setChromeLocal('enabled_platforms', platforms);
 		}
 	});
 }
@@ -756,7 +756,7 @@ function startTriggers(data, mode) {
 }
 
 function init_triggers(mode) {
-  fetch(chrome.extension.getURL(triggersFile))
+  fetch(browser.extension.getURL(triggersFile))
     .then(r => r.json())
     .then(data => startTriggers(data, mode));
 }

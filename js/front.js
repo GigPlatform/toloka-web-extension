@@ -1,11 +1,11 @@
-//console.log('YEIII');
+// console.log('YEIII');
 var globalUrl = window.location.href;
 var inactivityMinutes = 1;
 var wasInactive = false;
 backLevel = false;
 
 var libraries = [];
-// var libraries = [chrome.extension.getURL("js/store.js")];
+// var libraries = [browser.extension.getURL("js/store.js")];
 
 function init_process() {
   init_triggers('front');
@@ -40,7 +40,7 @@ function runCode(code) {
 function loadLibraries(libraries, callback) {
   if (libraries.length > 0) {
     var library = libraries.shift();
-    //console.log(library);
+    // console.log(library);
     var script = document.createElement('script');
     script.src = library;
     script.onload = function(){
@@ -61,12 +61,12 @@ function storeObjectLocal(data) {
   storeObject(JSON.stringify(data), 'store');
   // runCode("storeObject('" + JSON.stringify(data) + "', 'store')");
   // console.log(data);
-  // chrome.runtime.sendMessage(chrome.runtime.id, {
+  // browser.runtime.sendMessage(browser.runtime.id, {
   //     msg: "params",
   //     action: "storeObject",
   //     params: [data, 'store', true]
   // });
-  // var port = chrome.runtime.connect(chrome.runtime.id, {name: "knockknock"});
+  // var port = browser.runtime.connect(browser.runtime.id, {name: "knockknock"});
   // port.postMessage({action: "storeObject", params:[data, 'store', true]});
 }
 
@@ -98,7 +98,7 @@ function executeValidation(settings, data) {
           for (var element of elements) {
             if (element.innerText == settings.value) {
               validated = true;
-              //console.log('EVENT');
+              // console.log('EVENT');
               data[0] = (new Date()).getTime();
               eventFired(data);
               return true;
@@ -114,7 +114,7 @@ function executeValidation(settings, data) {
           var elements = target.querySelector(settings.selector);
           if (elements) {
             validated = true;
-            //console.log('EVENT');
+            // console.log('EVENT');
             data[0] = (new Date()).getTime();
             eventFired(data);
             return true;
@@ -130,7 +130,7 @@ function executeValidation(settings, data) {
           for (var element of elements) {
             element.addEventListener(settings.value, () => {
               validated = true;
-              //console.log('EVENT');
+              // console.log('EVENT');
               data[0] = (new Date()).getTime();
               eventFired(data);
               return true;
@@ -182,7 +182,7 @@ function logEvent(event, action, overwrite, otherUrl) {
       lastEvents = {};
       wasInactive = false;
     } else if (action == 'ONCE') {
-      //console.log(stats);
+      // console.log(stats);
       if (wasInactive === true) {
         wasInactive = false;
         logEvent('PAGE_REACTIVATE')
@@ -205,10 +205,10 @@ function logEvent(event, action, overwrite, otherUrl) {
   if (log) {
     logURL(otherUrl?otherUrl:globalUrl, event, null, overwrite)
       .then(data => {
-        //console.log(data);
+        // console.log(data);
         for (record of data) {
           if (record.extra == null) {
-            //console.log(record.data);
+            // console.log(record.data);
             eventFired(record.data);
           } else {
             executeValidation(record.extra, record.data);

@@ -86,11 +86,11 @@ function setField(obj, field, value, dict) {
 
 function getRankedResults(tasks) {
     if (recomMode == 'AI') {
-        console.log('AI_1')
+        // console.log('AI_1')
         if (tasks.length > 0) {
-            console.log('AI_2')
+            // console.log('AI_2')
             if (tasks[0].hasOwnProperty('weight')) {
-                console.log('AI_3')
+                // console.log('AI_3')
                 tasks.sort((a, b) => (a.weight < b.weight) ? 
                     1 : (a.weight === b.weight) ? 
                     ((a.pools[0].reward > b.pools[0].reward) ? 
@@ -178,7 +178,7 @@ function updateDataset(taskId, task, extra) {
           resolve();
         }
       }
-      console.log('DATASET', dataset);
+      // console.log('DATASET', dataset);
     });
   });
 }
@@ -206,7 +206,7 @@ function storeDataset(tasks, extra) {
       });
       if (count > 0) {
         setChromeLocal('dataset', dataset).then(() => resolve(dataset));
-        console.log('DATASET', dataset);
+        // console.log('DATASET', dataset);
       } else {
         resolve(dataset);
       }
@@ -221,7 +221,7 @@ function updateFeatures(taskId, task, extra) {
         features.data[taskId] = processExtra(features.data[taskId], extra, false);
         setChromeLocal('features', features).then(()=>{
           trainModel().then(()=>{
-            console.log('MODEL_TRAINED');
+            // console.log('MODEL_TRAINED');
             predictDataset();
           });
           resolve();
@@ -235,7 +235,7 @@ function updateFeatures(taskId, task, extra) {
           resolve();
         }
       }
-      console.log('FEATURES', features);
+      // console.log('FEATURES', features);
     });
   });
 }
@@ -261,14 +261,14 @@ function storeFeatures(tasks, extra) {
         });
         setChromeLocal('features', features).then(result => resolve(result));
         if (count > 0) {
-          console.log('FEATURES', features);
+          // console.log('FEATURES', features);
           if (!modelGlobal) {
-            console.log('FEATURES_TRAIN_1');
+            // console.log('FEATURES_TRAIN_1');
             trainModel().then(()=>{
               predictDataset();  
             })
           } else {
-            console.log('FEATURES_TRAIN_2');
+            // console.log('FEATURES_TRAIN_2');
             predictDataset();
           }
         }
@@ -301,7 +301,7 @@ function getTaskType(task) {
 function trainModel() {
   return new Promise((resolve, reject) => {
     getChromeLocal('features', {schema:fieldNames, data:{}, active:{}}).then(features => {
-      console.log('START_TRAINING');
+      // console.log('START_TRAINING');
       let data = Object.values(features.data);
       if (data.length > 0) {
         xTrain = data.map(val=>val.slice(1));
@@ -319,21 +319,24 @@ function trainModel() {
           metrics: ['accuracy'],
         });
 
-        console.log('TRAINING');
+        // console.log('TRAINING');
         modelGlobal.fit(tf.tensor2d(xTrain), tf.tensor1d(yTrain), {
           epochs: 100,
           callbacks: {
             onTrainEnd: async (logs) => {
-              console.log('TRAIN_END_1');
+              // console.log('TRAIN_END_1');
               resolve();    
             }
           }
         }).then(history => {
-          console.log('TRAIN_END_2');
+          // console.log('TRAIN_END_2');
           resolve();
         });
-        console.log('TRAIN_END_3');
-        setTimeout(()=>{console.log('TRAIN_END_4');resolve();}, 1000);
+        // console.log('TRAIN_END_3');
+        setTimeout(()=>{
+          // console.log('TRAIN_END_4');
+          resolve();
+        }, 200);
       }
     });
   });
@@ -341,7 +344,7 @@ function trainModel() {
 
 function predictDataset() {
   return new Promise((resolve, reject) => {
-    console.log('PREDICT_DATASET')
+    // console.log('PREDICT_DATASET')
     getChromeLocal('features', {schema:fieldNames, data:{}, active:{}}).then(features => {
       // console.log(features);
       let keys = Object.keys(features.active);
@@ -362,7 +365,7 @@ function predictDataset() {
                   dataset.active[taskId].weight = weights[taskId];
                 }
               }
-              console.log('WEIGHTS_UPDATED', dataset);
+              // console.log('WEIGHTS_UPDATED', dataset);
               setChromeLocal('dataset', dataset).then(()=>resolve(weights));
             });
           });

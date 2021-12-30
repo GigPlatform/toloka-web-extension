@@ -24,7 +24,7 @@ window.addEventListener('hashchange', function() {
 });
 
 window.addEventListener('locationchange', function(){
-    console.log('LOCATIONCHANGE');
+    // console.log('LOCATIONCHANGE');
     sendEventMessage({action: "changeUrl", value:{url:location.href}});
     // sendNewMessage({msg: "custom", action:"changeUrl", value:{url:location.href}});
     // postNewMessage({action: "changeUrl", value:{url:location.href}});
@@ -40,7 +40,7 @@ function initInject() {
 function initClientServer(extId) {
     extensionId = extId;
     // console.log('CLIENT SERVER STARTED', extensionId);
-    // portExt = chrome.runtime.connect(extensionId, {name: "knockknock"});
+    // portExt = browser.runtime.connect(extensionId, {name: "knockknock"});
     // portExt.onMessage.addListener(function(msg) {
     //     console.log(msg);
     // });
@@ -48,15 +48,15 @@ function initClientServer(extId) {
 }
 
 // function postNewMessage(content) {
-//     portExt = chrome.runtime.connect(extensionId, {name: "knockknock"});
+//     portExt = browser.runtime.connect(extensionId, {name: "knockknock"});
 //     portExt.postMessage(content);
 //     console.log("MESSAGE POSTED", extensionId);
 // }
 
 // function sendNewMessage(content) {
-//     chrome.runtime.sendMessage(extensionId, content, function(response) {});
+//     browser.runtime.sendMessage(extensionId, content, function(response) {});
 //     console.log("MESSAGE SENT", extensionId);
 // }
 
-console.log('INJECTED');
+// console.log('INJECTED');
 initInject();
