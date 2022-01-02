@@ -29,8 +29,11 @@ function allSubmited(obj) {
 }
 
 function tolokaUrlTaskId(url) {
-	var urlParts = url.split('/');
-	return [urlParts[4], urlParts[5]];
+	try {
+		return url.split('/task/').pop().split('/').shift();	
+	} catch (err) {
+		return null;
+	}
 }
 
 function tolokaSwitchWorking() {
@@ -42,20 +45,19 @@ function tolokaSwitchWorking() {
 
 function tolokaStarted(obj) {
 	// console.log('TASK STARTED');
-	let urlParts = tolokaUrlTaskId(obj.url);
-	let taskId = urlParts[0];
+	let taskId = tolokaUrlTaskId(obj.url);
 	// console.log(taskId);
   updateDataset(taskId, null, {status: 1});
   updateFeatures(taskId, null, {status: 1});
 	// browser.runtime.sendMessage({ msg: "enableButton" });
 	setChromeLocal('is_working', true);
 	setChromeLocal('working_on', obj.platform);
+	tolokaShareTask('STARTED', taskId);
 }
 
 function tolokaSubmited(obj) {
 	// console.log('TASK COMPLETED');
-	let urlParts = tolokaUrlTaskId(obj.url);
-	let taskId = urlParts[0];
+	let taskId = tolokaUrlTaskId(obj.url);
   updateDataset(taskId, null, {status: 2}).then(()=>{
   	removeActiveDataset(taskId);
   });
@@ -64,7 +66,37 @@ function tolokaSubmited(obj) {
   });
 	// browser.runtime.sendMessage({ msg: "disableButton" });
 	setChromeLocal('is_working', false);
-	tolokaSwitchWorking()
+	tolokaSwitchWorking();
+	tolokaShareTask('SUBMITTED', taskId);
+}
+
+function tolokaGetTaskById(taskId) {
+	return new Promise((resolve, reject) => {
+		getChromeLocal('dataset', {data:{}, active:{}}).then(dataset => {
+			console.log(taskId, dataset);
+			if (dataset.data.hasOwnProperty(taskId)) {
+				dataset.data[taskId].taskId = taskId;
+				resolve(dataset.data[taskId]);
+			} else {
+				resolve(null);
+			}
+		});
+	});
+}
+
+function tolokaShareTask(status, taskId) {
+	console.log('tolokaShareTask');
+	tolokaGetTaskById(taskId).then(task=>{
+		console.log(task);
+		if (task) {
+			task.action = status;
+			addUserFields([task]).then(tasks=>{
+				console.log(tasks);
+				// sendSocket('myevent', tasks)
+				browser.runtime.sendMessage({ msg:"params", action:"sendSocket", params:['myevent', tasks] });
+			});
+		}
+	});
 }
 
 function tolokaRejected(obj) {
@@ -92,8 +124,7 @@ function tolokaRefreshWage() {
 
 function tolokaTaskCompleted() {
 	// console.log('FSM TASK COMPLETED');
-	let urlParts = tolokaUrlTaskId(window.location.href);
-	let taskId = urlParts[0];
+	let taskId = tolokaUrlTaskId(window.location.href);
   // updateDataset(taskId, null, {status: 2});
   // updateFeatures(taskId, null, {status: 2});
 }
@@ -170,7 +201,7 @@ function tolokaTaskAnalysis(isRemote) {
     		// console.log(response);
     		activeTasks = response.numTasks;
     		if (response.changed) {
-    			var tasksUrl = 'https://sandbox.toloka.yandex.com/task/';
+    			var tasksUrl = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/`;
     			if (response.added.length > 0) {
     				for (var taskId of response.added) {
     					var taskData = response.data[taskId];
@@ -212,7 +243,7 @@ function tolokaTaskAnalysis(isRemote) {
 			      	  		for (var taskId of response.finished) {
 		    					var taskData = response.data[taskId];
 		    					// console.log(taskData);
-		    					logEvent(`https://sandbox.toloka.yandex.com/task/${taskData.lightweightTec.poolId}/${taskData.activeAssignments[0].id}`, 'PAGE_LOAD', {
+		    					logEvent(`https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${taskData.lightweightTec.poolId}/${taskData.activeAssignments[0].id}`, 'PAGE_LOAD', {
 		    					 		type: 'WORKING',
 		    					 		subtype: 'TASK_SUBMITED'
 		    					 	}
@@ -309,8 +340,21 @@ function getQueueDiff(isRemote) {
 }
 
 function sendNotification(notType, params) {
+	console.log('sendNotification', notType, params);
 	if (notType == 'brow') {
-		browser.browserAction.setBadgeText({text: params});
+		if (notPort) {
+			notPort.postMessage({action:notType, text:params});
+		}
+		// browser.runtime.sendMessage({
+		// 	msg:"params",
+		// 	action:"showIconValue",
+		// 	params:[params]
+		// });
+		// if (browser.hasOwnProperty('browserAction')) {
+		// 	browser.browserAction.setBadgeText({text: params});
+		// } else {
+		// 	chrome.browserAction.setBadgeText({text: params});
+		// }
 	} else if (notType == 'page') {
 		if (notPort) {
 			notPort.postMessage({action: params});
@@ -319,12 +363,17 @@ function sendNotification(notType, params) {
 		if (notPort) {
 			notPort.postMessage(params);
 		}
+	} else if (notType == 'work') {
+		if (notPort) {
+			notPort.postMessage(params);
+		}
 	}
 }
 
 function showNotification(added) {
+	console.log('showNotification', added);
 	getChromeLocal('settings', {}).then(config => {
-		setChromeLocal('is_working', false).then(isWorking => {
+		getChromeLocal('is_working', false).then(isWorking => {
 			// console.log('NEW TASK !!! !!! !!!');
 			// console.log('ADDED', added);
 			let notType = '';
@@ -363,7 +412,7 @@ function showNotification(added) {
 							params = {
 								action: 'message', 
 								text: `Hi! This is ${requesterName}, I posted this task: ${task.title}`, 
-								link: `https://sandbox.toloka.yandex.com/task/${task.pools[0].id}/${task.refUuid}`
+								link: `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.pools[0].id}/${task.refUuid}`
 							};
 							if (!toQueue) {
 								sendNotification(notType, Object.assign({},params));
@@ -394,7 +443,7 @@ function tolokaRecommenderCron(isRemote) {
 
 function tolokaGetNewTasks(isRemote) {
 	return new Promise((resolve, reject) => {
-    var url = 'https://sandbox.toloka.yandex.com/api/task-suite-pool-groups?userLangs=EN';
+    var url = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/task-suite-pool-groups?userLangs=EN`;
     fetch(url, {
 		  "method": "GET",
 		  "mode": "cors",
@@ -424,7 +473,7 @@ function tolokaGetNewTasks(isRemote) {
 
 function tolokaQueue(isRemote) {
   return new Promise((resolve, reject) => {
-    var url = 'https://sandbox.toloka.yandex.com/api/i-v3/task-suite-pools?withActiveAssignmentsOnly=true&userLangs=EN';
+    var url = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/i-v3/task-suite-pools?withActiveAssignmentsOnly=true&userLangs=EN`;
     fetch(url, {
 		  "method": "GET",
 		  "mode": "cors",
@@ -556,7 +605,7 @@ function tolokaWage(isRemote) {
   return new Promise((resolve, reject) => {
 
     var urlToday = null;
-		urlToday = "https://sandbox.toloka.yandex.com/api/worker/finance/income-log?page=0&size=10&properties=date&direction=DESC";
+		urlToday = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/worker/finance/income-log?page=0&size=10&properties=date&direction=DESC`;
 
     var date = getStringDate();
 
@@ -683,11 +732,40 @@ function upworkEarnings() {
 	// console.log('fiverrEarnings');
 }
 
+function tolokaGetUserData() {
+	console.log('tolokaGetUserData');
+	return new Promise((resolve, reject) => {
+    var url = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/users/current/worker`;
+    fetch(url, {
+		  "method": "GET",
+		  "mode": "cors",
+		  "credentials": "include"
+		}).then((response) => {if (response.ok) {return response.json();}})
+		  .then(data => {
+		    getChromeLocal('settings', {}).then(config=>{
+		    	config.userData = data;
+		    	setChromeLocal('settings', config);
+		    	resolve(data);
+		    });
+		  }).catch((error)=>{});
+  });
+}
+
+function platformEnabled(platform) {
+	if (platform == 'TOLOKA') {
+		tolokaTasksRemote();
+		tolokaEarningsRemote();
+		tolokaRecommenderPool();
+		tolokaGetUserData();
+	}
+}
+
 function platformEnable(platform) {
 	getChromeLocal('enabled_platforms', {}).then(platforms => {
 		if (!platforms.hasOwnProperty(platform)) {
 			platforms[platform] = true;
 			setChromeLocal('enabled_platforms', platforms);
+			platformEnabled(platform);
 		}
 	});
 }

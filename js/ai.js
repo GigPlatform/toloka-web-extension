@@ -131,14 +131,27 @@ function getCurrentTasks() {
 function getActiveTasks() {
     return new Promise((resolve, reject) => {
         getChromeLocal('dataset', {data:{}, active:{}}).then(dataset => {
+          getCurrentTasks().then(tasks=>{
+            let taskKeys = tasks.map(x=>x.pools[0].id);
+            let result = [];
+            for (var i in taskKeys) {
+              let taskId = taskKeys[i];
+              if (taskId in dataset.data) {
+                result.push(Object.assign(dataset.data[taskId], {newRow: false}));
+              } else {
+                result.push(Object.assign(tasks[i], {weight:0, newRow: true}));
+              }
+            }
+            resolve(result);
+          });
           // console.log('AI_0_0');
-          if (Object.keys(dataset.active).length > 0) {
+          // if (Object.keys(dataset.active).length > 0) {
             // console.log('AI_0_1');
-            resolve(Object.values(dataset.active));
-          } else {
+            // resolve(Object.values(dataset.active));
+          // } else {
             // console.log('AI_0_2');
-            getCurrentTasks().then(tasks=>resolve(tasks));
-          }
+            // getCurrentTasks().then(tasks=>resolve(tasks));
+          // }
         });
     });
 }
@@ -195,6 +208,7 @@ function storeDataset(tasks, extra) {
         if (!dataset.data.hasOwnProperty(taskId)) {
           count++;
           dataset.data[taskId] = task;
+          dataset.data[taskId].taskId = taskId;
           dataset.data[taskId].requester = task.requesterInfo.name.EN;
           dataset.data[taskId].preference = 0;
           dataset.data[taskId].status = 0;
@@ -406,6 +420,32 @@ function getTaskType(task) {
         }
     }
     return taskType;
+}
+
+function addUserFields(tasks) {
+  return new Promise((resolve, reject) => {
+    getChromeLocal('settings', {}).then(config=>{
+      const calAge = (date) => new Date(Date.now() - new Date(date).getTime()).getFullYear() - 1970;
+      const monthDiff = (dateFrom, dateTo) => dateTo.getMonth() - dateFrom.getMonth() + (12 * (dateTo.getFullYear() - dateFrom.getFullYear()));
+      for (let i in tasks) {
+        tasks[i].userId = config.userId;
+        tasks[i].groupId = config.groupId;
+        tasks[i].timestamp = (new Date()).getTime();
+        if (config.hasOwnProperty('userData')) {
+          tasks[i].citizenship = config.userData.citizenship;
+          tasks[i].country = config.userData.country;
+          tasks[i].userLang = config.userData.userLang;
+          tasks[i].firstName = config.userData.firstName;
+          tasks[i].gender = config.userData.gender;
+          tasks[i].education = config.userData.education;
+          tasks[i].languages = config.userData.languages;
+          tasks[i].age = calAge(config.userData.birthDay);
+          tasks[i].experience = monthDiff(new Date(config.userData.createdDate), new Date());
+        }
+      }
+      resolve(tasks);
+    })
+  });
 }
 
 function augmentData(tasks) {

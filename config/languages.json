@@ -1,0 +1,13 @@
+{
+	"supported": ["EN", "ES"],
+	"texts": {
+		"EN": {
+			"tasks": "Tasks",
+			"settings": "Settings"
+		},
+		"ES": {
+			"tasks": "Tareas",
+			"settings": "Configuraciones"
+		}
+	}
+}

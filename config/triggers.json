@@ -35,5 +35,11 @@
 		"events": [
 			{"type": "MINUTES_1"}
 		]
+	},{
+		"platform": "TOLOKA",
+		"method": "tolokaGetUserData",
+		"events": [
+			{"type": "MINUTES_30"}
+		]
 	}]
 }

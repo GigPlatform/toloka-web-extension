@@ -3,7 +3,8 @@ var websites = {
 }
 var lastUrl = window.location.href;
 var injectedScript = false;
-var verified = false;
+var counter = 0;
+var prevUrl = null;
 interfaceSource = 'inpage';
 
 function processWebsite() {
@@ -26,6 +27,7 @@ function processToloka() {
 }
 
 function verifyInterface() {
+    console.log('verifyInterface');
     injectText(`window.postMessage({action: "verification", value:{empty:$('#alertIcon').length==0}});`, "*");
 }
 
@@ -35,10 +37,11 @@ function loadInterface() {
 }
 
 function initInterface() {
-    if (!verified) {
+    console.log('initInterface');
+    if (prevUrl != window.location.href) {
         addAlertIcon();
         drawInterface().then(() => initMessageServer());
-        verified = true;
+        prevUrl = window.location.href;
     }
 }
 
@@ -56,8 +59,11 @@ function initMessageEvent() {
                 lastUrl = window.location.href;
                 processWebsite();
             } else if(event.data.action == 'verification') {
+                console.log('verification', event.data);
                 if (event.data.value.empty) {
                     loadInterface();
+                } else {
+                    counter = 0;
                 }
             }
         }

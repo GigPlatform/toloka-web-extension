@@ -1,9 +1,12 @@
-//console.log('YEIII');
+// console.log('YEIII');
 
 var backLevel = true;
 var configFile = 'config/general.json';
 var platformsFile = 'config/platforms.json';
 var blakclistFile = 'config/blacklist.json';
+var languagesFile = 'config/languages.json';
+var notPort = null;
+var sandboxMode = true;
 
 var defaultSite = {
   "url": "",
@@ -65,7 +68,7 @@ function trackEvent(data) {
 }
 
 function trackTelemetry(eventName, eventData) {
-    console.log('TRACK_EVENT', eventName, eventData);
+    // console.log('TRACK_EVENT', eventName, eventData);
 }
 
 function getConfiguration() {
@@ -75,13 +78,20 @@ function getConfiguration() {
   });
 }
 
+function getLanguages() {
+  return new Promise((resolve, reject) => {
+    getFileContentOnce(languagesFile)
+      .then(config => resolve(config));
+  });
+}
+
 function isNotBlacklisted(localUrl) {
   return new Promise((resolve, reject) => {
     getFileContentOnce(blakclistFile)
       .then(urls => {
         found = false;
         for (url of urls) {
-          //console.log(localUrl);
+          // console.log(localUrl);
           if (localUrl.indexOf(url) != -1) {
             found = true;
             reject();
@@ -101,9 +111,9 @@ function loadConfiguration(platformsFile) {
     var platformsData = {};
     getFileContentOnce(platformsFile)
     .then(platforms => {
-      //console.log(platforms);
+      // console.log(platforms);
       platforms.forEach(platformData => {
-          //console.log(platformData);
+          // console.log(platformData);
           platformData.urls.forEach(urlObj => {
             var hostname = (new URL(urlObj.url)).hostname;
             if (!platformsData.hasOwnProperty(hostname)) {
@@ -139,17 +149,10 @@ function clone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
-function urlToRegex(url) {
-  url = url.replace(/\(\.\*\)/g, "___");
-  url = RegExp.escape(url);
-  url = url.replace(/___/g, "(.*)") + '$';
-  return new RegExp(url);
-}
-
 function logSite(obj, globalUrl, event, extra, overwrite) {
   return new Promise((resolve, reject) => {
     try {
-      //console.log(chrome);
+      // console.log('logSite');
       browser.storage.local.get(['working_status','user_id']).then((result) => {
         var extra = null;
         obj.current = globalUrl;
@@ -166,48 +169,68 @@ function logSite(obj, globalUrl, event, extra, overwrite) {
           extra = obj.js;
         }
         resolve({data:data,extra:extra});
-        //runCode("storeObject('" + JSON.stringify(data) + "')");
-        //storeObject(obj).then(docRef => resolve(docRef)).catch(error => reject(error));
+        // runCode("storeObject('" + JSON.stringify(data) + "')");
+        // storeObject(obj).then(docRef => resolve(docRef)).catch(error => reject(error));
       });
     } catch(e) {
-      //console.log(e);
+      // console.log(e);
     }
   });
 }
 
+function urlToRegex(url) {
+  // console.log('urlToRegex');
+  // console.log(url);
+  url = decodeURI(url);
+  url = url.replaceAll(/\(\.\*\)/g, "___");
+  url = RegExp.escape(url);
+  url = url.replaceAll(/___/g, "(.*)") + '$';
+  // console.log(url);
+  return url;
+}
+
+function valuesMatch(pattern, value) {
+  var urlReg = urlToRegex(pattern);
+  var regex = new RegExp(urlReg);
+  var matches = value.match(regex);
+  // console.log(urlReg, value, matches);
+  return matches;
+}
+
 function logURL(globalUrl, event, extra, overwrite) {
   return new Promise((resolve, reject) => {
-    //console.log('logURL');
+    // console.log('logURL');
     if (globalUrl) {
       isNotBlacklisted(globalUrl)
         .then(() => {
-          //console.log('NOT BLACKLISTED');
+          // console.log('NOT BLACKLISTED');
           if(!extra) {
             extra = "";
           }
+          // console.log('LOAD_1');
           loadConfiguration(platformsFile).then(configData => {
-            //console.log('Loading complete');
+            // console.log('LOAD_2');
             var hostname = (new URL(globalUrl)).hostname;
-            //console.log(hostname);
+            // console.log(hostname);
             var hostFound = false;
             var urlsFound = [];
             for (var key of Object.keys(configData)) {
-              if (key == hostname) {
+              if (valuesMatch(key, hostname)) {
                 hostFound = true;
-                //console.log('Hostname found');
+                // console.log('Hostname found');
                 var lastSite = null;
                 for (var configObj of configData[key]) {
-                  var regex = urlToRegex(configObj.url);
-                  var matches = globalUrl.match(regex);
+                  var matches = valuesMatch(configObj.url, globalUrl);
                   lastSite = configObj;
                   if (matches) {
+                    // console.log(configObj.url, globalUrl, matches);
                     urlsFound.push(configObj);
                   }
                 }
               }
             }
             if (hostFound) {
-              //console.log(urlsFound);
+              // console.log(urlsFound);
               if (urlsFound.length > 0) {
                 var retrieved = 0;
                 var result = [];
@@ -221,7 +244,7 @@ function logURL(globalUrl, event, extra, overwrite) {
                     });
                 }
               } else {
-                //console.log('!urlFound');
+                // console.log('!urlFound');
                 var obj = clone(lastSite);
                 obj.type = 'UNKNOWN';
                 obj.subtype = 'UNKNOWN';
@@ -231,7 +254,7 @@ function logURL(globalUrl, event, extra, overwrite) {
                   });
               }
             } else {
-              //console.log('!hostFound');
+              // console.log('!hostFound');
               var obj = clone(defaultSite);
               logSite(obj, globalUrl, event, extra, overwrite).
                 then(data => {
@@ -241,8 +264,8 @@ function logURL(globalUrl, event, extra, overwrite) {
         });
       })
       .catch(() => {
-        //console.log('BLACKLISTED');
-        //console.log(globalUrl);
+        // console.log('BLACKLISTED');
+        // console.log(globalUrl);
       });
     }
   });
@@ -255,7 +278,7 @@ function getDOMNode(urlRemote) {
     } else {
       fetch(urlRemote).then((response) => response.text()).then(function(text) {
           var node = document.createElement("div");
-          //node.setAttribute("id", "tempContent");
+          // node.setAttribute("id", "tempContent");
           node.innerHTML = text;
           resolve(node);
         });

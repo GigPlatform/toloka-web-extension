@@ -4,14 +4,15 @@
 	"finalSurveyUrl": "https://docs.google.com/forms/d/e/1FAIpQLSe4ws9-oF7FsVPQZcJYzZVMS-KUtSujt34qch6eQ4K3dDEvpQ/viewform?usp=pp_url&entry.1509276571=",
 	"logServerUrl": "https://script.google.com/macros/s/AKfycbwGx2_5a6IwcNI2YZuz2AZvb1J-7Y8Ulk5fYHjZoA8wvHzajv9P55DYiI8UnoV0W403HA/exec",
 	"studyDurationDays": 7,
-	"studyDurationMins": 1,
+	"studyDurationMins": 3600,
 	"sandbox": true,
+	"groupId": "GN",
 	"mode": "PROTOCOL",
 	"protocol": [{
-		"mode": "PASSIVE",
+		"mode": "ACTIVE",
 		"durationMins": 1
 	},{
-		"mode": "ACTIVE",
+		"mode": "FINISH",
 		"durationMins": 1
 	}],
 	"settings": {

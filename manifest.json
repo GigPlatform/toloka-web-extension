@@ -23,6 +23,7 @@
             "js": [
                 "js/browser.js",
                 "js/jquery.js",
+                "js/socketio.js",
                 "js/tf.min.js",
                 "js/core.js",
                 "js/store.js",

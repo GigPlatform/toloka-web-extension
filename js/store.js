@@ -1,7 +1,7 @@
 function storeObject(obj, action) {
 	var servers = [
 		"https://script.google.com/macros/s/AKfycbwGx2_5a6IwcNI2YZuz2AZvb1J-7Y8Ulk5fYHjZoA8wvHzajv9P55DYiI8UnoV0W403HA/exec"
-		,"http://localhost:5000/"
+		,"http://localhost:5000/api"
 	];
 	for (var serverUrl of servers) {
 		if (action == 'store') {

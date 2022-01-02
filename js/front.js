@@ -8,7 +8,14 @@ var libraries = [];
 // var libraries = [browser.runtime.getURL("js/store.js")];
 
 function init_process() {
+
   init_triggers('front');
+}
+
+function initConfig() {
+  getChromeLocal('settings', {}).then(config=>{
+    sandboxMode = config.sandbox;
+  });
 }
 
 var inactivityInterval = null;
@@ -19,6 +26,20 @@ function inactivity_start() {
       logEvent('PAGE_INACTIVITY')
     }, inactivityMinutes*60*1000);
   }
+}
+
+function getLabels() {
+    return new Promise((resolve, reject) => {
+        getChromeLocal('settings', {}).then(config=>{
+            getChromeLocal('languages', {}).then(languages=>{
+                if (config.userData.userLang in languages.texts) {
+                    resolve(languages.texts[config.userData.userLang]);
+                } else {
+                    resolve(languages.texts['EN']);
+                }
+            });
+        });
+    });
 }
 
 function inactivity_restart() {
@@ -90,14 +111,18 @@ var observers = [];
 function executeValidation(settings, data) {
   var func = null;
   if (settings.hasOwnProperty('action')) {
-    if (settings.action == 'equal') {
+    if (settings.action == 'equal' || settings.action == 'notequal') {
       func = function(e){
         var target = conditionExecution(e);
         if (target != null && settings.selector) {
           var elements = target.querySelectorAll(settings.selector);
           for (var element of elements) {
-            if (element.innerText == settings.value) {
+            if (settings.action == 'equal' && element.innerText == settings.value) {
               validated = true;
+            } else if (settings.action == 'notequal' && element.innerText != settings.value) {
+              validated = true;
+            }
+            if (validated) {
               // console.log('EVENT');
               data[0] = (new Date()).getTime();
               eventFired(data);

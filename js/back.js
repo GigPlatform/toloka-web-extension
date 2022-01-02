@@ -1,14 +1,97 @@
 var lastTabId = 0;
 var status = 0;
 var tabToUrl = {};
-var notPort = null;
 var modeObj = null;
+var socket = null;
 
 function init_process() {
   init_triggers('back');
   fsmReset();
   triggersReset();
+  connReset();
   //getWage(true).then(totals => console.log(totals));
+}
+
+function connReset() {
+  socket = io("http://localhost:5000");
+
+  socket.on('connect', ()=>{
+    // console.log('CONNECTED');
+  });
+
+  socket.on('myresponse', (data)=>{
+    // console.log('connReset');
+    if (Array.isArray(data)) {
+      for (let record of data) {
+        recordStream(record);
+      }
+    }
+  });
+}
+
+function sendSocket(channel, data) {
+  socket.emit(channel, data);
+}
+
+function recordStream(data) {
+  // console.log('recordStream');
+  // console.log(data);
+  if (data.hasOwnProperty('taskId')) {
+    getChromeLocal('stream', {all:{}, users:{}, groups:{}}).then(stream=>{
+        stream.all[data.taskId] = data;
+        if (data.hasOwnProperty('userId')) {
+          if (!stream.users.hasOwnProperty(data.userId)) {
+            stream.users[data.userId] = [];
+          }
+          stream.users[data.userId].push(stream.all[data.taskId]);
+        }
+        if (data.hasOwnProperty('groupId')) {
+          if (!stream.groups.hasOwnProperty(data.groupId)) {
+            stream.groups[data.groupId] = [];
+          }
+          stream.groups[data.groupId].push(stream.all[data.taskId]);
+        }
+        setChromeLocal('stream', stream);
+        console.log('myresponse', stream);
+        processStream(data);
+    });
+  }
+}
+
+function processStream(task) {
+  // console.log('processStream');
+  if (task.hasOwnProperty('action')) {
+    // console.log(task);
+    if (task.action == 'STARTED' || task.action == 'SUBMITTED') {
+      getChromeLocal('settings', {}).then(config => {
+        getChromeLocal('is_working', false).then(isWorking => {
+          if (task.userId != config.userId) {
+            let notType = '';
+            let params = '';
+            let toQueue = false;
+            if (config.settings.not_whil == false && isWorking == true) {
+              toQueue = true;
+            }
+
+            if (config.settings.msg_work) {
+              notType = 'work';
+              params = {
+                action: 'message', 
+                text: `[WORKER] Hi, this is ${task.firstName}, I completed this task: ${task.title}`, 
+                link: `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.taskId}/${task.refUuid}`
+              };
+              // console.log(params);
+              if (!toQueue) {
+                sendNotification(notType, Object.assign({},params));
+              } else {
+                notQueue.push({notType:notType, params:Object.assign({},params)})
+              }
+            }
+          }
+        });
+      });
+    }
+  }
 }
 
 function getStatus(callback) {
@@ -130,6 +213,8 @@ function openTabUrl(params, sendResponse) {
 
 function initialSetup(userId, config) {
   // console.log('USER_STUDY', config.isUserStudy);
+  config.userId = userId;
+  sandboxMode = config.sandbox;
   if (config.isUserStudy) {
     var url = config.initialSurveyUrl + userId;
     browser.tabs.create({url: url}).then((tab) => {
@@ -155,7 +240,14 @@ function initialSetup(userId, config) {
   };
   setChromeLocal('mode', modeData);
   setChromeLocal('settings', config);
+  getLanguageLabels();
   startModeProcess();
+}
+
+function getLanguageLabels() {
+  getLanguages().then(languages=>{
+    setChromeLocal('languages', languages);
+  });
 }
 
 function startModeProcess() {
@@ -185,6 +277,14 @@ function startModeProcess() {
       }
     });
   }, 30*1000);
+}
+
+function showIconValue(value) {
+  browser.browserAction.setBadgeText({text: value});
+}
+
+function hideIconValue() {
+  browser.browserAction.setBadgeText({text: ''}); 
 }
 
 browser.runtime.onConnect.addListener(function(port) {
