@@ -44,7 +44,7 @@ function addAlertIcon() {
 
 function drawInterface() {
     return new Promise((resolve, reject) => {
-        getChromeLocal('settings', {}).then(config => {
+        getSettings().then(config => {
             getLabels().then(labels=>{
                 if ($('#alertPopup').length) {
                     $('#alertPopup').remove();
@@ -65,22 +65,27 @@ function drawInterface() {
                                                 <svg width="16" height="16" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve"><g><g><path d="M63.8,28.3l-0.2-1.5L55,25.3c-0.2-0.9-0.5-1.7-0.9-2.5c-0.3-0.8-0.7-1.6-1.2-2.4l5-7.1l-0.9-1.2c-1.5-1.9-3.3-3.7-5.2-5.2L50.7,6l-7.1,5c-1.6-0.9-3.2-1.5-4.9-2l-1.5-8.6l-1.5-0.2c-2.5-0.3-5-0.3-7.4,0l-1.5,0.2L25.3,9c-0.9,0.2-1.7,0.5-2.5,0.9c-0.8,0.3-1.6,0.7-2.4,1.2l-7.1-5l-1.2,0.9c-1.9,1.5-3.7,3.3-5.2,5.2L6,13.3l5,7.1c-0.9,1.6-1.5,3.2-2,4.9l-8.6,1.5l-0.2,1.5c-0.3,2.5-0.3,5,0,7.4l0.2,1.5L9,38.7c0.2,0.9,0.5,1.7,0.9,2.5c0.3,0.8,0.7,1.6,1.2,2.4l-5,7.1l0.9,1.2c1.5,1.9,3.3,3.7,5.2,5.2l1.2,0.9l7.1-5c1.6,0.9,3.2,1.5,4.9,2l1.5,8.6l1.5,0.2c1.2,0.1,2.5,0.2,3.7,0.2s2.5-0.1,3.7-0.2l1.5-0.2l1.5-8.6c0.9-0.2,1.7-0.5,2.5-0.9c0.8-0.3,1.6-0.7,2.4-1.2l7.1,5l1.2-0.9c1.9-1.5,3.7-3.3,5.2-5.2l0.9-1.2l-5-7.1c0.9-1.6,1.5-3.2,2-4.9l8.6-1.5l0.2-1.5C64.1,33.3,64.1,30.8,63.8,28.3z M32,44c-6.6,0-12-5.4-12-12s5.4-12,12-12s12,5.4,12,12S38.6,44,32,44z"/></g></g></svg>
                                             </span>
                                         </div>
+                                        <div class="user-menu-item">
+                                            <div id="alertMessage">OK</div>
+                                        </div>
                                         <div class="user-menu__separator"></div>
                                         <div class="user-menu-item">
                                             <form id="tasksForm">
-                                                <div id="taskList"></div>
+                                                <div id="taskList">
+                                                    <img src="https://i.gifer.com/AqA0.gif">
+                                                </div>
                                             </form>
                                         </div>
                                         <div class="user-menu__separator"></div>
                                         <div class="user-menu__footer">
                                             <div class="user-menu-item user-menu-item_clickable user-menu-item_in-footer">
                                                 <div class="popButton">
-                                                    Close
+                                                    ${labels["close"]}
                                                 </div>
                                             </div>
                                             <div class="user-menu-item user-menu-item_clickable user-menu-item_in-footer">
                                                 <div id="startButton" class="popButton">
-                                                    Start
+                                                    ${labels["start"]}
                                                 </div>
                                             </div>
                                         </div>
@@ -104,7 +109,7 @@ function drawInterface() {
                                                 <table>
                                                     <tr class="border-top">
                                                         <td class="gig-sett-field">
-                                                            Enable in-site notifications
+                                                            ${labels["insite"]}
                                                         </td>
                                                         <td class="gig-sett-value">
                                                             <input id="not_page" name="not_page" type="checkbox" ${config.settings.not_page?'checked':''}>
@@ -112,7 +117,7 @@ function drawInterface() {
                                                     </tr>
                                                     <tr>
                                                         <td class="gig-sett-field">
-                                                            Enable in-browser notifications
+                                                            ${labels["inbrowser"]}
                                                         </td>
                                                         <td class="gig-sett-value">
                                                             <input id="not_brow" name="not_brow" type="checkbox" ${config.settings.not_brow?'checked':''}>
@@ -120,7 +125,7 @@ function drawInterface() {
                                                     </tr>
                                                     <tr class="border-top">
                                                         <td class="gig-sett-field">
-                                                            Enable requester messages
+                                                            ${labels["msgreq"]}
                                                         </td>
                                                         <td class="gig-sett-value">
                                                             <input id="msg_requ" name="msg_requ" type="checkbox" ${config.settings.msg_requ?'checked':''}>
@@ -128,7 +133,7 @@ function drawInterface() {
                                                     </tr>
                                                     <tr>
                                                         <td class="gig-sett-field">
-                                                            Enable worker messages
+                                                            ${labels["msgwor"]}
                                                         </td>
                                                         <td class="gig-sett-value">
                                                             <input id="msg_work" name="msg_work" type="checkbox" ${config.settings.msg_work?'checked':''}>
@@ -136,7 +141,7 @@ function drawInterface() {
                                                     </tr>
                                                     <tr class="border-top">
                                                         <td class="gig-sett-field">
-                                                            Display notifications while working
+                                                            ${labels["notwhile"]}
                                                         </td>
                                                         <td class="gig-sett-value">
                                                             <input id="not_whil" name="not_whil" type="checkbox" ${config.settings.not_whil?'checked':''}>
@@ -144,7 +149,7 @@ function drawInterface() {
                                                     </tr>
                                                     <tr class="border-top">
                                                         <td class="gig-sett-field">
-                                                            Number of suggested tasks
+                                                            ${labels["numtask"]}
                                                         </td>
                                                         <td class="gig-sett-value">
                                                             <input id="num_task" name="num_task" type="text" size="3" value="${config.settings.num_task}" placeholder="${config.settings.num_task}">
@@ -157,12 +162,12 @@ function drawInterface() {
                                         <div class="user-menu__footer">
                                             <div class="user-menu-item user-menu-item_clickable user-menu-item_in-footer">
                                                 <div class="popButton gig-sett-button">
-                                                    Cancel
+                                                    ${labels["cancel"]}
                                                 </div>
                                             </div>
                                             <div class="user-menu-item user-menu-item_clickable user-menu-item_in-footer">
                                                 <div id="settSave" class="popButton gig-sett-button">
-                                                    Save
+                                                    ${labels["save"]}
                                                 </div>
                                             </div>
                                         </div>
@@ -200,7 +205,7 @@ function drawInterface() {
                         $("#formSett input:text").each(function(){
                             settings[this.name] = this.value;
                         });
-                        getChromeLocal('settings', {}).then(config => {
+                        getSettings().then(config => {
                             config.settings = settings;
                             setChromeLocal('settings', config);
                         });
@@ -232,7 +237,7 @@ function drawInterface() {
                                         <div class="user-menu__footer">
                                             <div class="user-menu-item user-menu-item_clickable user-menu-item_in-footer">
                                                 <div class="popButton">
-                                                    Close
+                                                    ${labels["close"]}
                                                 </div>
                                             </div>
                                         </div>
@@ -277,16 +282,99 @@ function approveNotifications() {
     }
 }
 
-function processMode() {    
-    getChromeLocal('settings', {}).then(config => {
-        if (config.currentMode == 'PASSIVE') {
-            $('#alertMessage').text('This feature is disabled');
-        } else if (config.currentMode == 'FINISH') {
-            $('#alertMessage').html(`
-                You have completed the user study, you will be paid for a last survey.
-                <a target="_blank" href="${config.finalSurveyUrl}">Click here to complete the survey</a>
-            `);
-        }
+function getLabels() {
+    return new Promise((resolve, reject) => {
+        getSettings().then(config=>{
+            getChromeLocal('languages', {}).then(languages=>{
+                if (config.userData.hasOwnProperty('userLang')) {
+                    if (config.userData.userLang in languages.texts) {
+                        resolve(languages.texts[config.userData.userLang]);
+                    } else {
+                        resolve(languages.texts['EN']);
+                    }
+                } else {
+                    resolve(languages.texts['EN']);
+                }
+            });
+        });
+    });
+}
+
+function getRemainingTime(nextDue, labels) {
+    let curTime = (new Date()).getTime();
+    let remaining = nextDue - curTime;
+    if (remaining < 0) {
+        remaining = 0;
+    }
+    if (remaining > 24*60*60*1000) {
+        return `${parseInt(remaining/(24*60*60*1000))} ${labels['days']}`;
+    } else if (remaining > 60*60*1000) {
+        return `${parseInt(remaining/(60*60*1000))} ${labels['hours']}`;
+    } else if (remaining > 60*1000) {
+        return `${parseInt(remaining/(60*1000))} ${labels['minutes']}`;
+    } else {
+        return `${parseInt(remaining/(1000))} ${labels['seconds']}`;
+    }
+}
+
+function getSurveyLink(config) {
+    let curTime = (new Date()).getTime();
+    let remaining = config.nextDue - curTime;
+    let remainingDays = parseInt(remaining/(24*60*60*1000));
+    return config.surveyLinks[config.currentMode][remainingDays+''];
+}
+
+function processMode() {
+    // console.log('processMode');
+    getSettings().then(config => {
+        // console.log('ENTER');
+        getLabels().then(labels=>{
+            // console.log('ENTER_0');
+            if (config.mode == 'PASSIVE' && config.currentMode == 'PASSIVE') {
+                // console.log('ENTER_1');
+                $('#alertMessage').html(`
+                    ${labels["disabled"]}
+                `);
+            } else if (config.mode == 'PROTOCOL' && config.currentMode == 'PASSIVE') {
+                // console.log('ENTER_2');
+                if (config.protocol[config.currentState+1] !== undefined) {
+                  let state = config.protocol[config.currentState+1].mode;
+                  if (state == 'ACTIVE') {
+                    // console.log('ENTER_3');
+                    $('#alertMessage').html(`
+                        ${labels["msgpassive"]} ${getRemainingTime(config.nextDue, labels)}.
+                        ${labels["surreminder"]}
+                        <a target="_blank" href="${getSurveyLink(config)}">${labels["linksurvey"]}</a>
+                    `);
+                  } else if (state == 'FINISH') {
+                    // console.log('ENTER_4');
+                    $('#alertMessage').html(`
+                        ${labels["keeptool"]} ${getRemainingTime(config.nextDue, labels)}.
+                        ${labels["surreminder"]}
+                        <a target="_blank" href="${getSurveyLink(config)}">${labels["linksurvey"]}</a>
+                    `);
+                  }
+                } else {
+                    // console.log('ENTER_5');
+                    $('#alertMessage').html(`
+                        ${labels["disabled"]}
+                    `);
+                }
+            } else if (config.currentMode == 'FINISH') {
+                // console.log('ENTER_6');
+                $('#alertMessage').html(`
+                    ${labels["completed"]}
+                    <a target="_blank" href="${config.finalSurveyUrl}">${labels["linksurvey"]}</a>
+                `);
+            } else if (config.currentMode == 'ACTIVE') {
+                // console.log('ENTER_7');
+                if (config.isUserStudy) {
+                    $('#alertMessage').html(`
+                        <a target="_blank" href="${getSurveyLink(config)}">${labels["todaysurl"]}</a> ${labels["timeleft"]} ${getRemainingTime(config.nextDue, labels)}
+                    `);
+                }
+            }
+        });
     });
 }
 
@@ -340,112 +428,114 @@ function notifyMe(text, link) {
 function populateTasks(tasks) {
     var numTask = 0;
     if (tasks.length > 0) {
-        getChromeLocal('settings', {}).then(config => {
-            let maxTasks = parseInt(config.settings.num_task);
-            var html = '<table>';
-            var count = 0;
-            topTasks = [];
-            augmentData(tasks);
-            tasks = getRankedResults(tasks);
-            // console.log(tasks);
-            globalTasks = tasks;
-            for (var task of tasks) {
-                // console.log(task);
-                if (task.availability.available) {
-                    if (!task.trainingDetails.training) {
-                        let taskId = `${task.pools[0].id}`;
-                        // let taskId = `${task.projectId}_${task.pools[0].id}`;
-                        // var taskUrl = `https://toloka.yandex.com/task/${task.pools[0].id}?refUuid=${task.refUuid}`;
-                        var taskUrl = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.pools[0].id}/${task.refUuid}`;
-                        html += `
-                            <tr>
-                                <td>
-                                    <div class="gig-rounded">
-                                        <div class="git-label-desc" title="${task.description}">
-                                            <div class="links taskLink" data-pos="${count}">${task.title}</div>
+        getSettings().then(config => {
+            getLabels().then(labels=>{
+                let maxTasks = parseInt(config.settings.num_task);
+                var html = '<table>';
+                var count = 0;
+                topTasks = [];
+                augmentData(tasks);
+                tasks = getRankedResults(tasks);
+                // console.log(tasks);
+                globalTasks = tasks;
+                for (var task of tasks) {
+                    // console.log(task);
+                    if (task.availability.available) {
+                        if (!task.trainingDetails.training) {
+                            let taskId = `${task.pools[0].id}`;
+                            // let taskId = `${task.projectId}_${task.pools[0].id}`;
+                            // var taskUrl = `https://toloka.yandex.com/task/${task.pools[0].id}?refUuid=${task.refUuid}`;
+                            var taskUrl = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.pools[0].id}/${task.refUuid}`;
+                            html += `
+                                <tr>
+                                    <td>
+                                        <div class="gig-rounded">
+                                            <div class="git-label-desc" title="${task.description}">
+                                                <div class="links taskLink" data-pos="${count}">${task.title}</div>
+                                            </div>
+                                            <div>
+                                                <!--
+                                                <span class="git-label-field">
+                                                    <div class="git-label-top">
+                                                        ${task.taskType}
+                                                    </div>
+                                                    <div class="git-label-sub">
+                                                        ${labels['type']}
+                                                    </div>
+                                                </span>
+                                                -->
+                                                <span class="git-label-field">
+                                                    <div class="git-label-top git-label-reward">
+                                                        ${formatNumber(task.pools[0].reward)}
+                                                    </div>
+                                                    <div class="git-label-sub">
+                                                        ${labels['pertask']}
+                                                    </div>
+                                                </span>
+                                                <span class="git-label-field">
+                                                    <div class="git-label-top">
+                                                        ${formatNumber(task.projectStats.moneyMax3)}
+                                                    </div>
+                                                    <div class="git-label-sub">
+                                                        ${labels['maxpay']}
+                                                    </div>
+                                                </span>
+                                                <span class="git-label-field">
+                                                    <div class="git-label-top">
+                                                        ${formatTime(task.projectStats.averageSubmitTimeSec)}
+                                                    </div>
+                                                    <div class="git-label-sub">
+                                                        ${labels['time']}
+                                                    </div>
+                                                </span>
+                                                <span class="git-label-field">
+                                                    <div class="git-label-top">
+                                                        ${formatTime(task.pools[0].assignmentMaxDurationSeconds)}
+                                                    </div>
+                                                    <div class="git-label-sub">
+                                                        ${labels['maxtime']}
+                                                    </div>
+                                                </span>
+                                                <span class="git-label-field">
+                                                    <div class="git-label-top">
+                                                        ${task.projectStats.acceptanceRate?task.projectStats.acceptanceRate+'%':'--'}
+                                                    </div>
+                                                    <div class="git-label-sub">
+                                                        ${labels['acceptance']}
+                                                    </div>
+                                                </span>
+                                                <span class="git-label-mid">
+                                                    <div class="git-label-top git-label-req" title="${task.requesterInfo.name.EN}">
+                                                        ${task.requesterInfo.name.EN}
+                                                    </div>
+                                                    <div class="git-label-sub">
+                                                        ${labels['requester']}
+                                                    </div>
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <!--
-                                            <span class="git-label-field">
-                                                <div class="git-label-top">
-                                                    ${task.taskType}
-                                                </div>
-                                                <div class="git-label-sub">
-                                                    type
-                                                </div>
-                                            </span>
-                                            -->
-                                            <span class="git-label-field">
-                                                <div class="git-label-top git-label-reward">
-                                                    ${formatNumber(task.pools[0].reward)}
-                                                </div>
-                                                <div class="git-label-sub">
-                                                    per task
-                                                </div>
-                                            </span>
-                                            <span class="git-label-field">
-                                                <div class="git-label-top">
-                                                    ${formatNumber(task.projectStats.moneyMax3)}
-                                                </div>
-                                                <div class="git-label-sub">
-                                                    max pay
-                                                </div>
-                                            </span>
-                                            <span class="git-label-field">
-                                                <div class="git-label-top">
-                                                    ${formatTime(task.projectStats.averageSubmitTimeSec)}
-                                                </div>
-                                                <div class="git-label-sub">
-                                                    time
-                                                </div>
-                                            </span>
-                                            <span class="git-label-field">
-                                                <div class="git-label-top">
-                                                    ${formatTime(task.pools[0].assignmentMaxDurationSeconds)}
-                                                </div>
-                                                <div class="git-label-sub">
-                                                    max time
-                                                </div>
-                                            </span>
-                                            <span class="git-label-field">
-                                                <div class="git-label-top">
-                                                    ${task.projectStats.acceptanceRate?task.projectStats.acceptanceRate+'%':'--'}
-                                                </div>
-                                                <div class="git-label-sub">
-                                                    acceptance
-                                                </div>
-                                            </span>
-                                            <span class="git-label-mid">
-                                                <div class="git-label-top git-label-req" title="${task.requesterInfo.name.EN}">
-                                                    ${task.requesterInfo.name.EN}
-                                                </div>
-                                                <div class="git-label-sub">
-                                                    requester
-                                                </div>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="gig-centered">
-                                    <input type="checkbox" class="gig-checkbox" id="field_${count}">
-                                </td>
-                            </tr>
-                        `;
-                        count++;
-                        topTasks.push({
-                            "title": task.title,
-                            "taskId": taskId,
-                            "task": task,
-                            "link": taskUrl
-                        });
-                        if (count == maxTasks) break;
+                                    </td>
+                                    <td class="gig-centered">
+                                        <input type="checkbox" class="gig-checkbox" id="field_${count}">
+                                    </td>
+                                </tr>
+                            `;
+                            count++;
+                            topTasks.push({
+                                "title": task.title,
+                                "taskId": taskId,
+                                "task": task,
+                                "link": taskUrl
+                            });
+                            if (count == maxTasks) break;
+                        }
                     }
                 }
-            }
-            html += '</table>'
-            $('#taskList').html(html);
-            $('.taskLink').on('click', function(){
-                sendTelemetry('taskClick', {position: $(this).data('pos')});
+                html += '</table>'
+                $('#taskList').html(html);
+                $('.taskLink').on('click', function(){
+                    sendTelemetry('taskClick', {position: $(this).data('pos')});
+                });
             });
         });
     }

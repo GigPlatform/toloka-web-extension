@@ -42,7 +42,7 @@ function evaluateState(stage, state, obj) {
 function processState(state, obj) {
 	//return new Promise((resolve, reject) => {
 		getChromeLocal(state, {}).then(queue => {
-			console.log(obj.activityType, obj.event);
+			// console.log(obj.activityType, obj.event);
 			// console.log(state);
 			if (evaluateState('init', state, obj)) {
 				// console.log('INIT', obj);

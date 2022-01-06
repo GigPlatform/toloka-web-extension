@@ -13,19 +13,23 @@ function init_process() {
 }
 
 function connReset() {
-  socket = io("http://localhost:5000");
+  // console.log('connReset');
+  getSettings().then(config=>{
+    // console.log(config.socketUrl);
+    socket = io(config.socketUrl);
 
-  socket.on('connect', ()=>{
-    // console.log('CONNECTED');
-  });
+    socket.on('connect', ()=>{
+      // console.log('CONNECTED');
+    });
 
-  socket.on('myresponse', (data)=>{
-    // console.log('connReset');
-    if (Array.isArray(data)) {
-      for (let record of data) {
-        recordStream(record);
+    socket.on('myresponse', (data)=>{
+      // console.log('connReset');
+      if (Array.isArray(data)) {
+        for (let record of data) {
+          recordStream(record);
+        }
       }
-    }
+    });
   });
 }
 
@@ -63,7 +67,7 @@ function processStream(task) {
   if (task.hasOwnProperty('action')) {
     // console.log(task);
     if (task.action == 'STARTED' || task.action == 'SUBMITTED') {
-      getChromeLocal('settings', {}).then(config => {
+      getSettings().then(config => {
         getChromeLocal('is_working', false).then(isWorking => {
           if (task.userId != config.userId) {
             let notType = '';
@@ -169,7 +173,7 @@ function enableButton() {
     browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
       // console.log('ENABLED_BACK');
       if (browser.pageAction) {
-        browser.pageAction.setIcon({path: "icon1.jpg", tabId: tabs[0].id});
+        browser.pageAction.setIcon({path: "img/icon1.jpg", tabId: tabs[0].id});
       }
     });
   });
@@ -180,7 +184,7 @@ function disableButton() {
     browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
       // console.log('DISABLED_BACK');
       if (browser.pageAction) {
-        browser.pageAction.setIcon({path: "icon0.jpg", tabId: tabs[0].id});
+        browser.pageAction.setIcon({path: "img/icon0.jpg", tabId: tabs[0].id});
       }
     });
   });
@@ -238,6 +242,8 @@ function initialSetup(userId, config) {
     totalStates: config.mode=='PROTOCOL'?config.protocol.length:1,
     nextDue: (new Date()).getTime() + nextDue*60*1000
   };
+  config.currentState = 0;
+  config.nextDue = modeData.nextDue;
   setChromeLocal('mode', modeData);
   setChromeLocal('settings', config);
   getLanguageLabels();
@@ -259,9 +265,11 @@ function startModeProcess() {
           modeData.curState += 1;
           if (modeData.mode == 'PROTOCOL') {
             if (modeData.curState < modeData.totalStates) {
-              getChromeLocal('settings',{}).then(config => {
+              getSettings().then(config => {
                 config.currentMode = config.protocol[modeData.curState].mode;
+                config.currentState = modeData.curState;
                 modeData.nextDue = (new Date()).getTime() + config.protocol[modeData.curState].durationMins*60*1000;
+                config.nextDue = modeData.nextDue;
                 setChromeLocal('settings', config);
                 setChromeLocal('mode', modeData);
                 // console.log('TIMER_TICK', modeData);
@@ -320,12 +328,13 @@ browser.runtime.onMessage.addListener(
 
 browser.runtime.onInstalled.addListener(function (object) {
   getUserId().then(userId => {
-    getConfiguration().then(config => {
+    // getConfiguration().then(config => {
+    getSettings().then(config => {
       // console.log('INIT_CONF', config);
-      setChromeLocal('settings', config).then(() => {
+      // setChromeLocal('settings', config).then(() => {
         // console.log('SETTINGS', config)
         initialSetup(userId, config);
-      });
+      // });
     });
   });
 });
@@ -337,19 +346,21 @@ browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   if (browser.pageAction) {
     browser.pageAction.show(tabId);
     getStatus((statusId)=>{
-      browser.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
+      browser.pageAction.setIcon({path: "img/icon"+statusId+".jpg", tabId: lastTabId});
     });
   }
 });
 
 browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
   // console.log('LOADED');
-  lastTabId = tabs[0].id;
-  if (browser.pageAction) {
-    browser.pageAction.show(lastTabId);
-    getStatus((statusId)=>{
-      browser.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
-    });
+  if (tabs[0] !== undefined) {
+    lastTabId = tabs[0].id;
+    if (browser.pageAction) {
+      browser.pageAction.show(lastTabId);
+      getStatus((statusId)=>{
+        browser.pageAction.setIcon({path: "img/icon"+statusId+".jpg", tabId: lastTabId});
+      });
+    }
   }
 });
 
@@ -358,7 +369,7 @@ if (browser.pageAction) {
     // console.log('CLICKED');
     lastTabId = tab.id;
     toogleStatus((statusId)=>{
-      browser.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
+      browser.pageAction.setIcon({path: "img/icon"+statusId+".jpg", tabId: lastTabId});
       browser.storage.local.get(['is_working', 'working_on']).then((result) => {
         if (result.hasOwnProperty('is_working') && result.hasOwnProperty('working_on')) {
           var is_working = result['is_working'];
@@ -382,7 +393,7 @@ browser.tabs.onActivated.addListener(function(tabId, tabObj) {
   if (browser.pageAction) {
     browser.pageAction.show(lastTabId);
     getStatus((statusId)=>{
-      browser.pageAction.setIcon({path: "icon"+statusId+".jpg", tabId: lastTabId});
+      browser.pageAction.setIcon({path: "img/icon"+statusId+".jpg", tabId: lastTabId});
     });
   }
   browser.tabs.query({active: true}).then((tab) => {

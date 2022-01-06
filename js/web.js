@@ -27,7 +27,7 @@ function processToloka() {
 }
 
 function verifyInterface() {
-    console.log('verifyInterface');
+    // console.log('verifyInterface');
     injectText(`window.postMessage({action: "verification", value:{empty:$('#alertIcon').length==0}});`, "*");
 }
 
@@ -37,7 +37,7 @@ function loadInterface() {
 }
 
 function initInterface() {
-    console.log('initInterface');
+    // console.log('initInterface');
     if (prevUrl != window.location.href) {
         addAlertIcon();
         drawInterface().then(() => initMessageServer());
@@ -59,7 +59,7 @@ function initMessageEvent() {
                 lastUrl = window.location.href;
                 processWebsite();
             } else if(event.data.action == 'verification') {
-                console.log('verification', event.data);
+                // console.log('verification', event.data);
                 if (event.data.value.empty) {
                     loadInterface();
                 } else {

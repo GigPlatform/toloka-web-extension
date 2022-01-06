@@ -13,7 +13,7 @@ function init_process() {
 }
 
 function initConfig() {
-  getChromeLocal('settings', {}).then(config=>{
+  getSettings().then(config=>{
     sandboxMode = config.sandbox;
   });
 }
@@ -26,20 +26,6 @@ function inactivity_start() {
       logEvent('PAGE_INACTIVITY')
     }, inactivityMinutes*60*1000);
   }
-}
-
-function getLabels() {
-    return new Promise((resolve, reject) => {
-        getChromeLocal('settings', {}).then(config=>{
-            getChromeLocal('languages', {}).then(languages=>{
-                if (config.userData.userLang in languages.texts) {
-                    resolve(languages.texts[config.userData.userLang]);
-                } else {
-                    resolve(languages.texts['EN']);
-                }
-            });
-        });
-    });
 }
 
 function inactivity_restart() {

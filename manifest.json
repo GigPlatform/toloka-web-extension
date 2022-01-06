@@ -1,13 +1,13 @@
 {
     "manifest_version": 2,
     "name": "Toloka Assistant",
-    "description": "This is an experimental plugin that tracks your performance in MTurk. Please fill the initial and end surveys and uninstall it after a week.",
+    "description": "This is an experimental plugin that add extra features to the Toloka user interface.",
     "minimum_chrome_version": "24.0.1307.0",
     "version": "0.4.0",
     "homepage_url": "http://bit.ly/study-instructions",
     "icons": {
-        "16": "icon_16.png",
-        "128": "icon_128.png"
+        "16": "img/icon_16.png",
+        "128": "img/icon_128.png"
     },
     "browser_action": {
         "default_popup": "popup.html",
@@ -21,10 +21,10 @@
             ],
             "all_frames": true,
             "js": [
-                "js/browser.js",
-                "js/jquery.js",
-                "js/socketio.js",
-                "js/tf.min.js",
+                "libs/browser.js",
+                "libs/jquery.js",
+                "libs/socketio.js",
+                "libs/tf.min.js",
                 "js/core.js",
                 "js/store.js",
                 "js/ai.js",
@@ -48,10 +48,7 @@
         "persistent": true
     },
     "permissions": [
-        "tabs", "management", "storage", "<all_urls>", "contextMenus",
-        "http://*/*",
-        "https://*/*"
+        "tabs", "storage"
     ],
-    "options_page": "dashboard.html",
-    "content_security_policy": "script-src 'self' https://script.google.com http://localhost; object-src 'self'"
+    "options_page": "dashboard.html"
 }

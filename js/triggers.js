@@ -73,7 +73,7 @@ function tolokaSubmited(obj) {
 function tolokaGetTaskById(taskId) {
 	return new Promise((resolve, reject) => {
 		getChromeLocal('dataset', {data:{}, active:{}}).then(dataset => {
-			console.log(taskId, dataset);
+			// console.log(taskId, dataset);
 			if (dataset.data.hasOwnProperty(taskId)) {
 				dataset.data[taskId].taskId = taskId;
 				resolve(dataset.data[taskId]);
@@ -85,13 +85,13 @@ function tolokaGetTaskById(taskId) {
 }
 
 function tolokaShareTask(status, taskId) {
-	console.log('tolokaShareTask');
+	// console.log('tolokaShareTask');
 	tolokaGetTaskById(taskId).then(task=>{
-		console.log(task);
+		// console.log(task);
 		if (task) {
 			task.action = status;
 			addUserFields([task]).then(tasks=>{
-				console.log(tasks);
+				// console.log(tasks);
 				// sendSocket('myevent', tasks)
 				browser.runtime.sendMessage({ msg:"params", action:"sendSocket", params:['myevent', tasks] });
 			});
@@ -340,7 +340,7 @@ function getQueueDiff(isRemote) {
 }
 
 function sendNotification(notType, params) {
-	console.log('sendNotification', notType, params);
+	// console.log('sendNotification', notType, params);
 	if (notType == 'brow') {
 		if (notPort) {
 			notPort.postMessage({action:notType, text:params});
@@ -371,8 +371,8 @@ function sendNotification(notType, params) {
 }
 
 function showNotification(added) {
-	console.log('showNotification', added);
-	getChromeLocal('settings', {}).then(config => {
+	// console.log('showNotification', added);
+	getSettings().then(config => {
 		getChromeLocal('is_working', false).then(isWorking => {
 			// console.log('NEW TASK !!! !!! !!!');
 			// console.log('ADDED', added);
@@ -742,7 +742,7 @@ function tolokaGetUserData() {
 		  "credentials": "include"
 		}).then((response) => {if (response.ok) {return response.json();}})
 		  .then(data => {
-		    getChromeLocal('settings', {}).then(config=>{
+		    getSettings().then(config=>{
 		    	config.userData = data;
 		    	setChromeLocal('settings', config);
 		    	resolve(data);

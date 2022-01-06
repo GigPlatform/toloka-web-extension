@@ -36,6 +36,18 @@ function getChromeLocal(varName, defaultValue) {
   });
 }
 
+function getChromeValue(varName, defaultValue) {
+  return new Promise((resolve, reject) => {
+    browser.storage.local.get([varName]).then((result)=>{
+      if (result.hasOwnProperty(varName)) {
+        resolve(result[varName]);
+      } else {
+        resolve(defaultValue);
+      }
+    });
+  });
+}
+
 function setChromeLocal(varName, value) {
   return new Promise((resolve, reject) => {
     var record = {};
@@ -43,6 +55,22 @@ function setChromeLocal(varName, value) {
     browser.storage.local.set(record).then(()=>{
       resolve(record);
     });
+  });
+}
+
+function getSettings() {
+  return new Promise((resolve, reject) => {
+    getChromeValue('settings', false).then(config=>{
+      if(!config) {
+        getConfiguration().then(config=>{
+          setChromeLocal('settings', config).then(()=>{
+            resolve(config);
+          })
+        })
+      } else {
+        resolve(config);
+      }
+    })
   });
 }
 

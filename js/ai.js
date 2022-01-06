@@ -424,7 +424,7 @@ function getTaskType(task) {
 
 function addUserFields(tasks) {
   return new Promise((resolve, reject) => {
-    getChromeLocal('settings', {}).then(config=>{
+    getSettings().then(config=>{
       const calAge = (date) => new Date(Date.now() - new Date(date).getTime()).getFullYear() - 1970;
       const monthDiff = (dateFrom, dateTo) => dateTo.getMonth() - dateFrom.getMonth() + (12 * (dateTo.getFullYear() - dateFrom.getFullYear()));
       for (let i in tasks) {

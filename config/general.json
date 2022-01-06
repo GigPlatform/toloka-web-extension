@@ -1,16 +1,21 @@
 {
 	"isUserStudy": true,
-	"initialSurveyUrl": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
-	"finalSurveyUrl": "https://docs.google.com/forms/d/e/1FAIpQLSe4ws9-oF7FsVPQZcJYzZVMS-KUtSujt34qch6eQ4K3dDEvpQ/viewform?usp=pp_url&entry.1509276571=",
+	"initialSurveyUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdWQa1AkVc5vV0VhdOYQLGgK77Pw-LEpmsuCBKpdo7QQopWbg/viewform?usp=pp_url&entry.784114392=",
+	"finalSurveyUrl": "https://docs.google.com/forms/d/e/1FAIpQLSefhPyHJs9x-_v0WxQ5aI3kGF3hfXNZH2vk3KMx1C8CnoZSGw/viewform?usp=pp_url&entry.1172212682=",
 	"logServerUrl": "https://script.google.com/macros/s/AKfycbwGx2_5a6IwcNI2YZuz2AZvb1J-7Y8Ulk5fYHjZoA8wvHzajv9P55DYiI8UnoV0W403HA/exec",
+	"serverUrls": [
+		"https://script.google.com/macros/s/AKfycbwGx2_5a6IwcNI2YZuz2AZvb1J-7Y8Ulk5fYHjZoA8wvHzajv9P55DYiI8UnoV0W403HA/exec",
+		"https://hcilab.ml/overhead/api"	
+	],
+	"socketUrl": "http://hcilab.ml:5000",
 	"studyDurationDays": 7,
 	"studyDurationMins": 3600,
-	"sandbox": true,
+	"sandbox": false,
 	"groupId": "GN",
 	"mode": "PROTOCOL",
 	"protocol": [{
 		"mode": "ACTIVE",
-		"durationMins": 1
+		"durationMins": 10
 	},{
 		"mode": "FINISH",
 		"durationMins": 1
@@ -22,5 +27,25 @@
 		"msg_work": true,
 		"not_whil": true,
 		"num_task": 5
+	},
+	"surveyLinks": {
+		"PASSIVE": {
+			"0": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"1": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"2": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"3": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"4": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"5": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"6": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432="
+		},
+		"ACTIVE": {
+			"0": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"1": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"2": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"3": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"4": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"5": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432=",
+			"6": "https://docs.google.com/forms/d/e/1FAIpQLScvig6pyHsBLgAgs0WXY2tm9xuZ0zMy84bnHEjeW-6zcLxknw/viewform?usp=pp_url&entry.2123034432="
+		}
 	}
 }
