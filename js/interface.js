@@ -71,7 +71,7 @@ function drawInterface() {
                                         <div class="user-menu__separator"></div>
                                         <div class="user-menu-item">
                                             <form id="tasksForm">
-                                                <div id="taskList">
+                                                <div id="taskList" class="taskList1">
                                                     <img src="https://i.gifer.com/AqA0.gif">
                                                 </div>
                                             </form>
@@ -229,7 +229,7 @@ function drawInterface() {
                                         </div>
                                         <div class="user-menu__separator"></div>
                                         <div class="user-menu-item">
-                                            <div id="taskList">
+                                            <div id="taskList" class="taskList2">
                                                 <div id="alertMessage"></div>
                                             </div>
                                         </div>
@@ -247,7 +247,7 @@ function drawInterface() {
                         </div>
                     `);
                 }
-                $("#alertImage").on("click", (event) => {
+                $("#alertImage, #alertNum").on("click", (event) => {
                     event.stopImmediatePropagation();                
                     // console.log('ALERT_CLICK', $('#alertPopup').is(":hidden"));
                     if ($('#alertPopup').is(":hidden")) {
@@ -286,7 +286,7 @@ function getLabels() {
     return new Promise((resolve, reject) => {
         getSettings().then(config=>{
             getChromeLocal('languages', {}).then(languages=>{
-                if (config.userData.hasOwnProperty('userLang')) {
+                if (config.hasOwnProperty('userData') && config.userData.hasOwnProperty('userLang')) {
                     if (config.userData.userLang in languages.texts) {
                         resolve(languages.texts[config.userData.userLang]);
                     } else {
@@ -364,7 +364,7 @@ function processMode() {
                 // console.log('ENTER_6');
                 $('#alertMessage').html(`
                     ${labels["completed"]}
-                    <a target="_blank" href="${config.finalSurveyUrl}">${labels["linksurvey"]}</a>
+                    <a target="_blank" href="${config.finalSurveyUrl}${config.userId}">${labels["linksurvey"]}</a>
                 `);
             } else if (config.currentMode == 'ACTIVE') {
                 // console.log('ENTER_7');
@@ -445,7 +445,8 @@ function populateTasks(tasks) {
                             let taskId = `${task.pools[0].id}`;
                             // let taskId = `${task.projectId}_${task.pools[0].id}`;
                             // var taskUrl = `https://toloka.yandex.com/task/${task.pools[0].id}?refUuid=${task.refUuid}`;
-                            var taskUrl = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.pools[0].id}/${task.refUuid}`;
+                            // var taskUrl = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.pools[0].id}/${task.refUuid}`;
+                            var taskUrl = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.pools[0].id}/`;
                             html += `
                                 <tr>
                                     <td>

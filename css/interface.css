@@ -2,8 +2,15 @@
     
 }
 
-#taskList {
+.taskList {
     width: 430px;
+    max-height: 260px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.taskList2 {
+    width: 400px;
     max-height: 260px;
     overflow-x: hidden;
     overflow-y: auto;
@@ -112,7 +119,11 @@
 .links {
     text-decoration: none;
     color: inherit;
-    cursor: auto;
+    /* cursor: auto; */
+}
+
+.taskLink {
+    cursor: pointer;   
 }
 
 #divSettings {
