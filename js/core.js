@@ -6,6 +6,7 @@ var platformsFile = 'config/platforms.json';
 var blakclistFile = 'config/blacklist.json';
 var languagesFile = 'config/languages.json';
 var notPort = null;
+var notPorts = [];
 var sandboxMode = true;
 
 var defaultSite = {
@@ -74,6 +75,14 @@ function getSettings() {
   });
 }
 
+function getAddedTasks() {
+  return new Promise((resolve, reject) => {
+    getChromeValue('addedTasks', {available:false, list:[]}).then(addedTasks=>{
+      resolve(addedTasks);
+    });
+  });
+}
+
 var fileContent = {};
 function getFileContentOnce(filePath) {
   return new Promise((resolve, reject) => {
@@ -89,14 +98,19 @@ function getFileContentOnce(filePath) {
   });
 }
 
+function eventFired(data) {
+  return new Promise((resolve, reject) => {
+    trackEvent(data);
+    storeObject(JSON.stringify(data), 'store').then(()=>{
+      resolve();
+    });
+  });
+}
+
 function trackEvent(data) {
   var obj = mapObject(data);
   fsmInput(obj);
   matchATrigger(obj);
-}
-
-function trackTelemetry(eventName, eventData) {
-    // console.log('TRACK_EVENT', eventName, eventData);
 }
 
 function getConfiguration() {
@@ -182,7 +196,7 @@ function logSite(obj, globalUrl, event, extra, overwrite) {
     try {
       // console.log('logSite');
       browser.storage.local.get(['working_status','user_id']).then((result) => {
-        var extra = null;
+        // var extra = null;
         obj.current = globalUrl;
         obj.time = (new Date()).getTime();
         obj.status = result['working_status'];
@@ -233,7 +247,7 @@ function logURL(globalUrl, event, extra, overwrite) {
         .then(() => {
           // console.log('NOT BLACKLISTED');
           if(!extra) {
-            extra = "";
+            extra = null;
           }
           // console.log('LOAD_1');
           loadConfiguration(platformsFile).then(configData => {
@@ -322,4 +336,16 @@ function waitForEl(selector, callback) {
       waitForEl(selector, callback);
     }, 100);
   }
+}
+
+function postMessage(msg) {
+  notPorts.forEach(port=>{
+    if (port) {
+      try {
+        port.postMessage(msg);
+      } catch(e) {
+        
+      }     
+    }
+  });
 }

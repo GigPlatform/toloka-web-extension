@@ -342,9 +342,7 @@ function getQueueDiff(isRemote) {
 function sendNotification(notType, params) {
 	// console.log('sendNotification', notType, params);
 	if (notType == 'brow') {
-		if (notPort) {
-			notPort.postMessage({action:notType, text:params});
-		}
+		postMessage({action:notType, text:params});
 		// browser.runtime.sendMessage({
 		// 	msg:"params",
 		// 	action:"showIconValue",
@@ -356,17 +354,11 @@ function sendNotification(notType, params) {
 		// 	chrome.browserAction.setBadgeText({text: params});
 		// }
 	} else if (notType == 'page') {
-		if (notPort) {
-			notPort.postMessage({action: params});
-		}
+		postMessage({action: params});
 	} else if (notType == 'requ') {
-		if (notPort) {
-			notPort.postMessage(params);
-		}
+		postMessage(params);
 	} else if (notType == 'work') {
-		if (notPort) {
-			notPort.postMessage(params);
-		}
+		postMessage(params);
 	}
 }
 
@@ -411,8 +403,9 @@ function showNotification(added) {
 						if (requesters.hasOwnProperty(requesterName)) {
 							params = {
 								action: 'message', 
-								text: `Hi! This is ${requesterName}, I posted this task: ${task.title}`, 
-								link: `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.pools[0].id}/${task.refUuid}`
+								text: `[REQUESTER] Hi! This is ${requesterName}, I posted this task: ${task.title}`, 
+								link: `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.pools[0].id}/`,
+								source: 'REQUESTER'
 							};
 							if (!toQueue) {
 								sendNotification(notType, Object.assign({},params));
@@ -434,7 +427,17 @@ function tolokaRecommenderCron(isRemote) {
 			var curTasks = response;
 			var added = curTasks.list.filter(x => !lastTasks.list.includes(x));
 			if (added.length > 0) {
-				showNotification(added.map(taskId => curTasks.data[taskId]));
+				let addedArr = added.map(taskId => curTasks.data[taskId]);
+				showNotification(addedArr);
+				getAddedTasks().then(addedTasks=>{
+					if (addedTasks.available) {
+						addedTasks.list = addedArr.concat(addedTasks.list);
+					} else {
+						addedTasks.list = addedArr;
+						addedTasks.available = true;
+					}
+					setChromeLocal('addedTasks', addedTasks);
+				});
 			}
 			setChromeLocal('pool', curTasks);
 		});
@@ -529,6 +532,14 @@ function getQueue(isRemote) {
 }
 
 function mturkFilesRemote() {
+	// console.log('mturkFilesRemote');
+	browser.storage.local.get(['user_id', 'lapses', 'wages', 'installed_time', 'tasks', 'tasks_all']).then((result)=>{
+      // console.log(result);
+      storeObject(JSON.stringify(result), 'local');
+    });
+}
+
+function tolokaFilesRemote() {
 	// console.log('mturkFilesRemote');
 	browser.storage.local.get(['user_id', 'lapses', 'wages', 'installed_time', 'tasks', 'tasks_all']).then((result)=>{
       // console.log(result);
@@ -733,7 +744,7 @@ function upworkEarnings() {
 }
 
 function tolokaGetUserData() {
-	console.log('tolokaGetUserData');
+	// console.log('tolokaGetUserData');
 	return new Promise((resolve, reject) => {
     var url = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/users/current/worker`;
     fetch(url, {

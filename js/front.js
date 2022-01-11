@@ -59,11 +59,6 @@ function loadLibraries(libraries, callback) {
   }
 }
 
-function eventFired(data) {
-  trackEvent(data);
-  storeObjectLocal(data);  
-}
-
 function storeObjectLocal(data) {
   storeObject(JSON.stringify(data), 'store');
   // runCode("storeObject('" + JSON.stringify(data) + "', 'store')");

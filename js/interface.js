@@ -2,6 +2,7 @@ var globalTasks = null;
 var sandboxMode = true;
 var topTasks = [];
 var interfaceSource = 'interface';
+var loaderCode = '<img src="https://i.gifer.com/AqA0.gif">';
 
 function formatNumber(number) {
     if (number == null)
@@ -66,13 +67,26 @@ function drawInterface() {
                                             </span>
                                         </div>
                                         <div class="user-menu-item">
-                                            <div id="alertMessage">OK</div>
+                                            <div id="alertMessage"></div>
+                                        </div>
+                                        <div class="user-menu__separator"></div>
+                                        <div class="user-menu-item">
+
+                                        <div role="group" class="ButtonMenu">
+                                            <button id="recButton" type="button" class="ButtonElement ButtonSelected">
+                                                <span>Recommended</span>
+                                            </button>
+                                            <button id="newButton" type="button" class="ButtonElement">
+                                                <span>New</span>
+                                            </button>
+                                        </div>
+
                                         </div>
                                         <div class="user-menu__separator"></div>
                                         <div class="user-menu-item">
                                             <form id="tasksForm">
                                                 <div id="taskList" class="taskList1">
-                                                    <img src="https://i.gifer.com/AqA0.gif">
+                                                    ${loaderCode}
                                                 </div>
                                             </form>
                                         </div>
@@ -180,6 +194,7 @@ function drawInterface() {
                     $("#settButton, #backButton, .gig-sett-button").on("click", () => {
                         $('#divTasks').toggle();
                         $('#divSettings').toggle();
+                        trackTelemetry(window.location.href, `SETT_CLICK`, null);
                     });
 
                     $("#startButton").on("click", () => {
@@ -209,9 +224,20 @@ function drawInterface() {
                             config.settings = settings;
                             setChromeLocal('settings', config);
                         });
+                        trackTelemetry(window.location.href, `SETT_SAVE`, settings);
                     });
 
-                    getActiveTasks().then(tasks => populateTasks(tasks));
+                    $("#recButton").on("click", function() {
+                        showRecTasks();
+                        trackTelemetry(window.location.href, `LIST_RECOM`, null);
+                    });
+
+                    $("#newButton").on("click", function() {
+                        showNewTasks();
+                        trackTelemetry(window.location.href, `LIST_NEW`, null);
+                    });
+
+                    getTasksToShow(true);
                 } else if (config.currentMode == 'PASSIVE' || config.currentMode == 'FINISH') {
                     $('#alertDiv').append(`
                         <div id="alertPopup" class="popup popup_show_bottom-right user-switcher__popup popup_visible">
@@ -258,8 +284,8 @@ function drawInterface() {
                         $('#alertPopup').hide();
                     }
                     approveNotifications();
-                    $("#alertNum").hide();
-                    trackTelemetry('alertClick', {source: interfaceSource});
+                    cleanAlert(interfaceSource);
+                    trackTelemetry(window.location.href, 'BELL_CLICK', {source: interfaceSource});
                 });
                 $(".popButton").on("click", () => {
                     $('#alertPopup').hide();
@@ -274,6 +300,42 @@ function drawInterface() {
             });
         });
     });
+}
+
+function showNewTasks() {
+    $('#taskList').html(loaderCode);
+    getAddedTasks().then(addedTasks => {
+        addedTasks.available = false;
+        let addedIds = addedTasks.list.map(obj=>`${obj.pools[0].id}`);
+        getActiveTasks().then(tasks => populateTasks(tasks, "TIME", addedIds));
+        addedTasks.list = [];
+        setChromeLocal('addedTasks', addedTasks);
+        $("#recButton").removeClass("ButtonSelected");
+        $("#newButton").addClass("ButtonSelected");
+    });
+}
+
+function showRecTasks() {
+    $('#taskList').html(loaderCode);
+    getSettings().then(config => {
+        getActiveTasks().then(tasks => populateTasks(tasks, config.rankMethod, []));
+        $("#recButton").addClass("ButtonSelected");
+        $("#newButton").removeClass("ButtonSelected");
+    });
+}
+
+function getTasksToShow(validateAdded) {
+    if (validateAdded) {
+        getAddedTasks().then(addedTasks => {
+            if (addedTasks.available) {
+                showNewTasks();
+            } else {
+                showRecTasks();
+            }
+        });
+    } else {
+        showRecTasks();
+    }
 }
 
 function approveNotifications() {
@@ -386,12 +448,27 @@ function showTasks() {
 function sendTelemetry(eventName, eventData) {
     // console.log('RECORDING TELEMETRY');
     let event = topTasks[eventData.position];
-    window.open(event.link, '_blank');
     event.source = interfaceSource;
-    trackTelemetry(eventName, event);
     updateRequesters(event.task.requesterInfo.name.EN).then(() => {
         updateDataset(event.taskId, event.task, {status: 1, preference:x=>x+1});
         updateFeatures(event.taskId, event.task, {status: 1, preference:x=>x+1});
+    });
+    trackTelemetry(window.location.href, eventName, event).then(()=>{
+        window.open(event.link, '_blank');    
+    });
+}
+
+function trackTelemetry(url, eventName, eventData) {
+    return new Promise((resolve, reject) => {
+        logURL(url, eventName, JSON.stringify(eventData), null)
+          .then(data => {
+            // console.log(data);
+            for (record of data) {
+                eventFired(record.data).then(()=>{
+                    resolve();    
+                });
+            }
+          });
     });
 }
 
@@ -401,8 +478,11 @@ function initMessageServer() {
     port.onMessage.addListener(function(msg) {
         if (msg.action == 'alert') {
             $("#alertNum").show();
+        } else if (msg.action == 'alerthide') {
+            $("#alertNum").hide();
         } else if (msg.action == 'message') {
-            notifyMe(msg.text, msg.link);
+            notifyMe(msg.text, msg.link, msg.source);
+            trackTelemetry(window.location.href, `MSG_RCV_${msg.source}`, msg);
         } else if (msg.action == 'brow') {
             browser.runtime.sendMessage({
                 msg:"params",
@@ -413,19 +493,20 @@ function initMessageServer() {
     });
 }
 
-function notifyMe(text, link) {
+function notifyMe(text, link, source) {
     if (Notification.permission == 'granted') {
         var notification = new Notification('Culture Fit', {
             icon: 'https://research.hcilab.ml/files/img.png',
             body: text,
         });
         notification.onclick = function() {
+            trackTelemetry(link, `MSG_CLICK_${source}`, {text:text, link:link});
             window.open(link);
         };
     }
 }
 
-function populateTasks(tasks) {
+function populateTasks(tasks, rankMethod, toHighlight) {
     var numTask = 0;
     if (tasks.length > 0) {
         getSettings().then(config => {
@@ -435,7 +516,7 @@ function populateTasks(tasks) {
                 var count = 0;
                 topTasks = [];
                 augmentData(tasks);
-                tasks = getRankedResults(tasks);
+                tasks = getRankedResults(tasks, rankMethod);
                 // console.log(tasks);
                 globalTasks = tasks;
                 for (var task of tasks) {
@@ -443,6 +524,11 @@ function populateTasks(tasks) {
                     if (task.availability.available) {
                         if (!task.trainingDetails.training) {
                             let taskId = `${task.pools[0].id}`;
+                            let highlight = false;
+                            // console.log(taskId, toHighlight.indexOf(taskId), toHighlight);
+                            if (toHighlight && toHighlight.indexOf(taskId) != -1) {
+                                highlight = true;
+                            }
                             // let taskId = `${task.projectId}_${task.pools[0].id}`;
                             // var taskUrl = `https://toloka.yandex.com/task/${task.pools[0].id}?refUuid=${task.refUuid}`;
                             // var taskUrl = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.pools[0].id}/${task.refUuid}`;
@@ -450,7 +536,7 @@ function populateTasks(tasks) {
                             html += `
                                 <tr>
                                     <td>
-                                        <div class="gig-rounded">
+                                        <div class="gig-rounded ${highlight?'gig-rounded-highlighted':''}">
                                             <div class="git-label-desc" title="${task.description}">
                                                 <div class="links taskLink" data-pos="${count}">${task.title}</div>
                                             </div>
@@ -535,9 +621,20 @@ function populateTasks(tasks) {
                 html += '</table>'
                 $('#taskList').html(html);
                 $('.taskLink').on('click', function(){
-                    sendTelemetry('taskClick', {position: $(this).data('pos')});
+                    sendTelemetry('TASK_CLICK', {source: interfaceSource, position: $(this).data('pos')});
                 });
             });
         });
     }
+}
+
+function cleanAlert(source) {
+  if (source == 'inbrowser') {
+    browser.browserAction.setBadgeText({text: ""});
+    browser.runtime.sendMessage({msg: "hideIconInter"});
+  } else {
+    // $("#alertNum").hide();
+    browser.runtime.sendMessage({msg: "hideIconInter"});
+    browser.runtime.sendMessage({msg: "hideIconValue"});
+  }
 }

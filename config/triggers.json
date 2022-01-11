@@ -41,5 +41,11 @@
 		"events": [
 			{"type": "MINUTES_30"}
 		]
+	},{
+		"platform": "TOLOKA",
+		"method": "tolokaFilesRemote",
+		"events": [
+			{"type": "MINUTES_60"}
+		]
 	}]
 }

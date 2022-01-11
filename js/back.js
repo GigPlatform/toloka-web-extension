@@ -56,7 +56,7 @@ function recordStream(data) {
           stream.groups[data.groupId].push(stream.all[data.taskId]);
         }
         setChromeLocal('stream', stream);
-        console.log('myresponse', stream);
+        // console.log('myresponse', stream);
         processStream(data);
     });
   }
@@ -66,7 +66,7 @@ function processStream(task) {
   // console.log('processStream');
   if (task.hasOwnProperty('action')) {
     // console.log(task);
-    if (task.action == 'STARTED' || task.action == 'SUBMITTED') {
+    if (task.action == 'SUBMITTED') {
       getSettings().then(config => {
         getChromeLocal('is_working', false).then(isWorking => {
           if (task.userId != config.userId) {
@@ -81,8 +81,9 @@ function processStream(task) {
               notType = 'work';
               params = {
                 action: 'message', 
-                text: `[WORKER] Hi, this is ${task.firstName}, I completed this task: ${task.title}`, 
-                link: `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.taskId}/${task.refUuid}`
+                text: `[WORKER] Hi, this is ${task.firstName}, I recommend this task: ${task.title}`, 
+                link: `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${task.taskId}/`,
+                source: 'WORKER'
               };
               // console.log(params);
               if (!toQueue) {
@@ -295,20 +296,28 @@ function hideIconValue() {
   browser.browserAction.setBadgeText({text: ''}); 
 }
 
+function hideIconInter() {
+  postMessage({action: 'alerthide'});
+}
+
 browser.runtime.onConnect.addListener(function(port) {
-  notPort = port;
+  let index = notPorts.push(port) - 1;
   // console.log('SERVER CONNECTEEEEED');
   // console.assert(notPort.name === "knockknock");
-  notPort.onMessage.addListener(function(msg) {
+  port.onMessage.addListener(function(msg) {
     // console.log('SERVER MESSAGEEEEEEE');
     // console.log(msg);
     if (msg.hasOwnProperty('action')) {
       // console.log('StoreObj_3');
       window[msg.action](...msg.params);
     }
-    notPort.postMessage({action: "none"});
+    port.postMessage({action: "none"});
     // if (msg.joke === "Knock knock")
     //    notPort.postMessage({question: "Who's there?"});
+  });
+  port.onDisconnect.addListener(function() {
+      notPorts[index] = null;
+      notPorts.splice(index, 1);
   });
 });
 

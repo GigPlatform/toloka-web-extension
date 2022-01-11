@@ -84,25 +84,35 @@ function setField(obj, field, value, dict) {
   return obj;
 }
 
-function getRankedResults(tasks) {
-    if (recomMode == 'AI') {
+function getRankedResults(tasks, rankMethod) {
+    if (rankMethod != 'NO') {
+      if (rankMethod == 'AI') {
         // console.log('AI_1')
         if (tasks.length > 0) {
-            // console.log('AI_2')
-            if (tasks[0].hasOwnProperty('weight')) {
-                // console.log('AI_3')
-                tasks.sort((a, b) => (a.weight < b.weight) ? 
-                    1 : (a.weight === b.weight) ? 
-                    ((a.pools[0].reward > b.pools[0].reward) ? 
-                    1 : -1) : -1 );
-                return tasks;
-            }
+          // console.log('AI_2')
+          if (tasks[0].hasOwnProperty('weight')) {
+            // console.log('AI_3')
+            tasks.sort((a, b) => (a.weight < b.weight) ? 
+              1 : (a.weight === b.weight) ? 
+              ((a.pools[0].reward > b.pools[0].reward) ? 
+              1 : -1) : -1 );
+            return tasks;
+          } else {
+            return getRankedResults(tasks, 'REWARD');
+          }
         }
+      } else if (rankMethod == 'REWARD') {
+        tasks.sort((a, b) => (a.pools[0].reward < b.pools[0].reward) ? 
+          1 : (a.pools[0].reward === b.pools[0].reward) ? 
+          ((a.projectStats.averageSubmitTimeSec > b.projectStats.averageSubmitTimeSec) ? 
+          1 : -1) : -1 );
+        return tasks;
+      } else if (rankMethod == 'TIME') {
+        tasks.sort((a, b) => (a.pools[0].startedAt < b.pools[0].startedAt) ? 
+          1 : -1 );
+        return tasks;
+      }
     }
-    tasks.sort((a, b) => (a.pools[0].reward < b.pools[0].reward) ? 
-            1 : (a.pools[0].reward === b.pools[0].reward) ? 
-            ((a.projectStats.averageSubmitTimeSec > b.projectStats.averageSubmitTimeSec) ? 
-            1 : -1) : -1 );
     return tasks;
 }
 
@@ -336,6 +346,7 @@ function trainModel() {
         // console.log('TRAINING');
         modelGlobal.fit(tf.tensor2d(xTrain), tf.tensor1d(yTrain), {
           epochs: 100,
+          verbose: 0,
           callbacks: {
             onTrainEnd: async (logs) => {
               // console.log('TRAIN_END_1');

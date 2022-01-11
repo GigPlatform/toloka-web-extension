@@ -54,7 +54,11 @@
     width: 350px;
     height: 70px;
     margin-bottom: 10px;
-  }
+}
+
+.gig-rounded-highlighted {
+    border: 2px solid #094dba;
+}
 
 .git-label-req {
     width:70px;
@@ -179,4 +183,16 @@
     transition: padding .2s,opacity .2s,max-width .2s,min-width .2s,easeInOutCubic;
     vertical-align: middle;
     white-space: nowrap;
+}
+
+.ButtonSelected {
+    background-color: #ffe8d7;
+}
+
+.ButtonMenu {
+    padding: 2px;
+}
+
+.ButtonElement {
+    padding: 5px;
 }
