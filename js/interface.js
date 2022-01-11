@@ -336,6 +336,11 @@ function getTasksToShow(validateAdded) {
     } else {
         showRecTasks();
     }
+    getAddedTasks().then(addedTasks => {
+        if (addedTasks.available) {
+            $("#alertNum").show();
+        }
+    });
 }
 
 function approveNotifications() {
