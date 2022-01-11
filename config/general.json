@@ -10,7 +10,7 @@
 	"socketUrl": "http://hcilab.ml:5000",
 	"studyDurationDays": 7,
 	"studyDurationMins": 3600,
-	"sandbox": true,
+	"sandbox": false,
 	"rankMethod": "AI",
 	"groupId": "GN",
 	"mode": "ACTIVE",

@@ -1,5 +1,4 @@
 var globalTasks = null;
-var sandboxMode = true;
 var topTasks = [];
 var interfaceSource = 'interface';
 var loaderCode = '<img src="https://i.gifer.com/AqA0.gif">';

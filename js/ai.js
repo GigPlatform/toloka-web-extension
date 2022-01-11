@@ -21,7 +21,6 @@ var fieldNames = Object.keys(featuresSchema);
 var modelGlobal = null;
 var xTrain = [];
 var yTrain = [];
-var sandboxMode = true;
 var lastWeights = {};
 var recomMode = 'AI';
 
@@ -127,6 +126,7 @@ function processExtra(obj, extra, dict) {
 
 function getCurrentTasks() {
     return new Promise((resolve, reject) => {
+        // console.log('sandboxMode', sandboxMode);
         fetch(`https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/task-suite-pool-groups?userLangs=EN`, {
             "method": "GET",
             "mode": "cors",

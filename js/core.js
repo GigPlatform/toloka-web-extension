@@ -7,7 +7,7 @@ var blakclistFile = 'config/blacklist.json';
 var languagesFile = 'config/languages.json';
 var notPort = null;
 var notPorts = [];
-var sandboxMode = true;
+var sandboxMode = false;
 
 var defaultSite = {
   "url": "",
@@ -344,7 +344,7 @@ function postMessage(msg) {
       try {
         port.postMessage(msg);
       } catch(e) {
-        
+
       }     
     }
   });
