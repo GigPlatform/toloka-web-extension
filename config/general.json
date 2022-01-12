@@ -11,7 +11,7 @@
 	"studyDurationDays": 7,
 	"studyDurationMins": 3600,
 	"sandbox": false,
-	"rankMethod": "AI",
+	"rankMethod": "REWARD",
 	"groupId": "GN",
 	"mode": "ACTIVE",
 	"protocol": [{
@@ -24,6 +24,7 @@
 		"mode": "FINISH",
 		"durationMins": 10
 	}],
+	"hideUnpaidTasks": true,
 	"settings": {
 		"not_page": true,
 		"not_brow": true,

@@ -78,6 +78,8 @@ function drawInterface() {
                                             <button id="newButton" type="button" class="ButtonElement">
                                                 <span>New</span>
                                             </button>
+                                            <input id="hideUnpaid" type="checkbox" ${config.hideUnpaidTasks?'checked':''}>
+                                            ${labels["hidetasks"]}
                                         </div>
 
                                         </div>
@@ -234,6 +236,19 @@ function drawInterface() {
                     $("#newButton").on("click", function() {
                         showNewTasks();
                         trackTelemetry(window.location.href, `LIST_NEW`, null);
+                    });
+
+                    $("#hideUnpaid").on("click", function() {
+                        getSettings().then(config => {
+                            config.hideUnpaidTasks = $(this).is(":checked");
+                            setChromeLocal('settings', config);
+                            $('.ButtonSelected').click();
+                            if (config.hideUnpaidTasks) {
+                                trackTelemetry(window.location.href, `TASK_HIDE_ON`, null);
+                            } else {
+                                trackTelemetry(window.location.href, `TASK_HIDE_OFF`, null);
+                            }
+                        });
                     });
 
                     getTasksToShow(true);
@@ -526,7 +541,11 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                 for (var task of tasks) {
                     // console.log(task);
                     if (task.availability.available) {
-                        if (!task.trainingDetails.training) {
+                        let filterTask = false;
+                        if (config.hideUnpaidTasks && task.trainingDetails.training) {
+                            filterTask = true;
+                        }
+                        if (!filterTask) {
                             let taskId = `${task.pools[0].id}`;
                             let highlight = false;
                             // console.log(taskId, toHighlight.indexOf(taskId), toHighlight);
@@ -557,7 +576,7 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                                                 -->
                                                 <span class="git-label-field">
                                                     <div class="git-label-top git-label-reward">
-                                                        ${formatNumber(task.pools[0].reward)}
+                                                        ${formatNumber(getPrice(task))}
                                                     </div>
                                                     <div class="git-label-sub">
                                                         ${labels['pertask']}
@@ -593,6 +612,14 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                                                     </div>
                                                     <div class="git-label-sub">
                                                         ${labels['acceptance']}
+                                                    </div>
+                                                </span>
+                                                <span class="git-label-field">
+                                                    <div class="git-label-top">
+                                                        ${task.trainingDetails.training?labels['yes']:labels['no']}
+                                                    </div>
+                                                    <div class="git-label-sub">
+                                                        ${labels['train']}
                                                     </div>
                                                 </span>
                                                 <span class="git-label-mid">

@@ -83,6 +83,14 @@ function setField(obj, field, value, dict) {
   return obj;
 }
 
+function getPrice(obj) {
+  if (obj.trainingDetails.training) {
+    return obj.trainingDetails.regularPoolReward;
+  } else {
+    return obj.pools[0].reward;
+  }
+}
+
 function getRankedResults(tasks, rankMethod) {
     if (rankMethod != 'NO') {
       if (rankMethod == 'AI') {
@@ -93,7 +101,7 @@ function getRankedResults(tasks, rankMethod) {
             // console.log('AI_3')
             tasks.sort((a, b) => (a.weight < b.weight) ? 
               1 : (a.weight === b.weight) ? 
-              ((a.pools[0].reward > b.pools[0].reward) ? 
+              ((getPrice(a) > getPrice(b)) ? 
               1 : -1) : -1 );
             return tasks;
           } else {
@@ -101,8 +109,8 @@ function getRankedResults(tasks, rankMethod) {
           }
         }
       } else if (rankMethod == 'REWARD') {
-        tasks.sort((a, b) => (a.pools[0].reward < b.pools[0].reward) ? 
-          1 : (a.pools[0].reward === b.pools[0].reward) ? 
+        tasks.sort((a, b) => (getPrice(a) < getPrice(b)) ? 
+          1 : (getPrice(a) === getPrice(b)) ? 
           ((a.projectStats.averageSubmitTimeSec > b.projectStats.averageSubmitTimeSec) ? 
           1 : -1) : -1 );
         return tasks;

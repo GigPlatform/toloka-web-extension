@@ -32,7 +32,11 @@
 			"surreminder": "Please ensure that you have completed the today's survey to receive your daily pay.",
 			"keeptool": "Please keep the tool installed for the next ",
 			"todaysurl": "🪙 Today's payment link",
-			"timeleft": "Remaining time"
+			"timeleft": "Remaining time",
+			"hidetasks": "Hide unpaid tasks",
+			"train": "train",
+			"yes": "Y",
+			"no": "N"
 		},
 		"ES": {
 			"tasks": "Tareas",
@@ -65,7 +69,11 @@
 			"surreminder": "Asegúrese de haber completado la encuesta de hoy para recibir su pago diario.",
 			"keeptool": "Porfavor manten la herramienta instalada por los siguientes ",
 			"todaysurl": "🪙 Liga de pago diaria",
-			"timeleft": "Tiempo restante"
+			"timeleft": "Tiempo restante",
+			"hidetasks": "Ocultar tareas sin paga",
+			"train": "train",
+			"yes": "Y",
+			"no": "N"
 		},
 		"RU": {
 			"tasks": "Задания", 
@@ -98,7 +106,11 @@
 			"surreminder": "Убедитесь, что вы заполнили сегодняшнюю анкету, чтобы получать ежедневную зарплату.", 
 			"keeptool": "Пожалуйста, оставьте инструмент установленным на ",
 			"todaysurl": "🪙 Ссылка на сегодняшнюю оплату",
-			"timeleft": "Oсталось времени"
+			"timeleft": "Oсталось времени",
+			"hidetasks": "Скрыть неоплаченные задачи",
+			"train": "train",
+			"yes": "Y",
+			"no": "N"
 		}
 	}
 }

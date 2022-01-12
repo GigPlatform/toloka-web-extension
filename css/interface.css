@@ -61,7 +61,7 @@
 }
 
 .git-label-req {
-    width:70px;
+    width:40px;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
@@ -69,7 +69,7 @@
 
 .git-label-mid {
     display: inline-block;
-    width:80px;
+    width:40px;
     padding:0;
     margin-left:5px;
     text-align: center;
@@ -102,7 +102,7 @@
     display: inline-block;
     width:40px;
     padding:0;
-    margin-left:5px;
+    margin-left:3px;
     text-align: center;
 }
 
