@@ -15,7 +15,7 @@
 	"groupId": "GN",
 	"mode": "PROTOCOL",
 	"protocol": [{
-		"mode": "ACTIVE",
+		"mode": "PASSIVE",
 		"durationMins": 1440
 	},{
 		"mode": "ACTIVE",
