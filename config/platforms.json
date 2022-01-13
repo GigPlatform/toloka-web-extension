@@ -12,7 +12,7 @@
 				"type": "SEARCHING",
 				"subtype": "TASK_INFO",
 				"js": {
-					"selector": ".base-modal-popup_size_XL",
+					"selector": ".base-modal-popup-body > iframe",
 					"action": "display",
 					"wait": true
 				}
@@ -78,18 +78,6 @@
 				"url": "https://(.*)toloka.yandex.com/(.*)messages(.*)",
 				"type": "COMMUNICATION",
 				"subtype": "MESSAGES_READ"
-			},
-			{
-				"url": "https://(.*)toloka.yandex.com/(.*)task/(.*)",
-				"type": "SEARCHING",
-				"subtype": "TASK_INFO",
-				"js": {
-					"selector": ".base-modal-popup-header__title",
-					"action": "equal",
-					"value": "Instructions",
-					"wait": true
-				}
-				
 			},
 			{
 				"url": "https://(.*)toloka.yandex.com/(.*)achievements",

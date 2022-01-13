@@ -402,7 +402,7 @@ function getSurveyLink(config) {
     let curTime = (new Date()).getTime();
     let remaining = config.nextDue - curTime;
     let remainingDays = parseInt(remaining/(24*60*60*1000));
-    return config.surveyLinks[config.currentMode][remainingDays+''];
+    return config.surveyLinks[config.currentMode][remainingDays+''] + config.userId + remainingDays + config.currentMode;
 }
 
 function processMode() {

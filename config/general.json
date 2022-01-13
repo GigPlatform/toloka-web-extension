@@ -8,21 +8,21 @@
 		"https://hcilab.ml/overhead/api"	
 	],
 	"socketUrl": "http://hcilab.ml:5000",
-	"studyDurationDays": 7,
+	"studyDurationDays": 2,
 	"studyDurationMins": 3600,
 	"sandbox": false,
 	"rankMethod": "REWARD",
 	"groupId": "GN",
-	"mode": "ACTIVE",
+	"mode": "PROTOCOL",
 	"protocol": [{
-		"mode": "PASSIVE",
-		"durationMins": 20
+		"mode": "ACTIVE",
+		"durationMins": 1440
 	},{
 		"mode": "ACTIVE",
-		"durationMins": 10
+		"durationMins": 1440
 	},{
 		"mode": "FINISH",
-		"durationMins": 10
+		"durationMins": 1440
 	}],
 	"hideUnpaidTasks": true,
 	"settings": {
@@ -35,22 +35,22 @@
 	},
 	"surveyLinks": {
 		"PASSIVE": {
-			"0": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"1": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"2": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"3": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"4": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"5": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"6": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link"
+			"0": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"1": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"2": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"3": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"4": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"5": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"6": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278="
 		},
 		"ACTIVE": {
-			"0": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"1": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"2": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"3": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"4": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"5": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link",
-			"6": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=sf_link"
+			"0": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"1": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"2": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"3": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"4": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"5": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
+			"6": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278="
 		}
 	}
 }
