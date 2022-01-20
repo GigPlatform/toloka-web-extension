@@ -39,7 +39,7 @@
 		"platform": "TOLOKA",
 		"method": "tolokaGetUserData",
 		"events": [
-			{"type": "MINUTES_30"}
+			{"type": "MINUTES_1"}
 		]
 	},{
 		"platform": "TOLOKA",

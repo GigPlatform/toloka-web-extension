@@ -45,6 +45,7 @@ function addAlertIcon() {
 function drawInterface() {
     return new Promise((resolve, reject) => {
         getSettings().then(config => {
+            // console.log(config);
             getLabels().then(labels=>{
                 if ($('#alertPopup').length) {
                     $('#alertPopup').remove();
@@ -73,10 +74,10 @@ function drawInterface() {
 
                                         <div role="group" class="ButtonMenu">
                                             <button id="recButton" type="button" class="ButtonElement ButtonSelected">
-                                                <span>Recommended</span>
+                                                <span>${labels["suggested"]}</span>
                                             </button>
                                             <button id="newButton" type="button" class="ButtonElement">
-                                                <span>New</span>
+                                                <span>${labels["new"]}</span>
                                             </button>
                                             <input id="hideUnpaid" type="checkbox" ${config.hideUnpaidTasks?'checked':''}>
                                             ${labels["hidetasks"]}
@@ -195,7 +196,8 @@ function drawInterface() {
                     $("#settButton, #backButton, .gig-sett-button").on("click", () => {
                         $('#divTasks').toggle();
                         $('#divSettings').toggle();
-                        trackTelemetry(window.location.href, `SETT_CLICK`, null);
+                        // trackTelemetry(window.location.href, `SETT_CLICK`, null);
+                        logEvent(`SETT_CLICK`, window.location.href, null);
                     });
 
                     $("#startButton").on("click", () => {
@@ -225,17 +227,20 @@ function drawInterface() {
                             config.settings = settings;
                             setChromeLocal('settings', config);
                         });
-                        trackTelemetry(window.location.href, `SETT_SAVE`, settings);
+                        // trackTelemetry(window.location.href, `SETT_SAVE`, settings);
+                        logEvent(`SETT_SAVE`, window.location.href, settings);
                     });
 
                     $("#recButton").on("click", function() {
                         showRecTasks();
-                        trackTelemetry(window.location.href, `LIST_RECOM`, null);
+                        // trackTelemetry(window.location.href, `LIST_RECOM`, null);
+                        logEvent(`LIST_RECOM`, window.location.href, null);
                     });
 
                     $("#newButton").on("click", function() {
                         showNewTasks();
-                        trackTelemetry(window.location.href, `LIST_NEW`, null);
+                        // trackTelemetry(window.location.href, `LIST_NEW`, null);
+                        logEvent(`LIST_NEW`, window.location.href, null);
                     });
 
                     $("#hideUnpaid").on("click", function() {
@@ -244,9 +249,11 @@ function drawInterface() {
                             setChromeLocal('settings', config);
                             $('.ButtonSelected').click();
                             if (config.hideUnpaidTasks) {
-                                trackTelemetry(window.location.href, `TASK_HIDE_ON`, null);
+                                // trackTelemetry(window.location.href, `TASK_HIDE_ON`, null);
+                                logEvent(`TASK_HIDE_ON`, window.location.href, null);
                             } else {
-                                trackTelemetry(window.location.href, `TASK_HIDE_OFF`, null);
+                                // trackTelemetry(window.location.href, `TASK_HIDE_OFF`, null);
+                                logEvent(`TASK_HIDE_OFF`, window.location.href, null);
                             }
                         });
                     });
@@ -299,7 +306,8 @@ function drawInterface() {
                     }
                     approveNotifications();
                     cleanAlert(interfaceSource);
-                    trackTelemetry(window.location.href, 'BELL_CLICK', {source: interfaceSource});
+                    // trackTelemetry(window.location.href, 'BELL_CLICK', {source: interfaceSource});
+                    logEvent('BELL_CLICK', window.location.href, {source: interfaceSource});
                 });
                 $(".popButton").on("click", () => {
                     $('#alertPopup').hide();
@@ -365,19 +373,11 @@ function approveNotifications() {
 
 function getLabels() {
     return new Promise((resolve, reject) => {
-        getSettings().then(config=>{
-            getChromeLocal('languages', {}).then(languages=>{
-                if (config.hasOwnProperty('userData') && config.userData.hasOwnProperty('userLang')) {
-                    if (config.userData.userLang in languages.texts) {
-                        resolve(languages.texts[config.userData.userLang]);
-                    } else {
-                        resolve(languages.texts['EN']);
-                    }
-                } else {
-                    resolve(languages.texts['EN']);
-                }
+        getLanguages().then(languages=>{
+            getLanguage().then(lang=>{
+                resolve(languages.texts[lang]);
             });
-        });
+        })
     });
 }
 
@@ -402,7 +402,7 @@ function getSurveyLink(config) {
     let curTime = (new Date()).getTime();
     let remaining = config.nextDue - curTime;
     let remainingDays = parseInt(remaining/(24*60*60*1000));
-    return config.surveyLinks[config.currentMode][remainingDays+''] + config.userId + remainingDays + config.currentMode;
+    return config.surveyLinks[config.currentMode][remainingDays+''] + config.userId + '_' + (new Date()).getTime() + '_' + remainingDays + '_' + config.currentMode;
 }
 
 function processMode() {
@@ -451,12 +451,19 @@ function processMode() {
                 // console.log('ENTER_7');
                 if (config.isUserStudy) {
                     $('#alertMessage').html(`
-                        <a target="_blank" href="${getSurveyLink(config)}">${labels["todaysurl"]}</a> ${labels["timeleft"]} ${getRemainingTime(config.nextDue, labels)}
+                        <a target="_blank" href="${getSurveyLink(config)}">${labels["todaysurl"]}<b>${getNumDay(config)}</b></a> ${labels["timeleft"]} ${getRemainingTime(config.nextDue, labels)}
                     `);
                 }
             }
         });
     });
+}
+
+function getNumDay(config) {
+    let curTime = (new Date()).getTime();
+    let remaining = curTime - config.installTime;
+    let numDays = parseInt(remaining/(24*60*60*1000)) + 1;
+    return numDays;
 }
 
 function showTasks() {
@@ -472,7 +479,8 @@ function sendTelemetry(eventName, eventData) {
         updateDataset(event.taskId, event.task, {status: 1, preference:x=>x+1});
         updateFeatures(event.taskId, event.task, {status: 1, preference:x=>x+1});
     });
-    trackTelemetry(window.location.href, eventName, event).then(()=>{
+    // trackTelemetry(window.location.href, eventName, event).then(()=>{
+    logEvent(window.location.href, eventName, event).then(()=>{
         window.open(event.link, '_blank');    
     });
 }
@@ -501,7 +509,8 @@ function initMessageServer() {
             $("#alertNum").hide();
         } else if (msg.action == 'message') {
             notifyMe(msg.text, msg.link, msg.source);
-            trackTelemetry(window.location.href, `MSG_RCV_${msg.source}`, msg);
+            // trackTelemetry(window.location.href, `MSG_RCV_${msg.source}`, msg);
+            logEvent(`MSG_RCV_${msg.source}`, window.location.href, msg);
         } else if (msg.action == 'brow') {
             browser.runtime.sendMessage({
                 msg:"params",
@@ -519,7 +528,8 @@ function notifyMe(text, link, source) {
             body: text,
         });
         notification.onclick = function() {
-            trackTelemetry(link, `MSG_CLICK_${source}`, {text:text, link:link});
+            // trackTelemetry(link, `MSG_CLICK_${source}`, {text:text, link:link});
+            logEvent(`MSG_CLICK_${source}`, link, {text:text, link:link});
             window.open(link);
         };
     }
@@ -569,7 +579,7 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                                                     <div class="git-label-top">
                                                         ${task.taskType}
                                                     </div>
-                                                    <div class="git-label-sub">
+                                                    <div class="git-label-sub" title="${labels['type']}">
                                                         ${labels['type']}
                                                     </div>
                                                 </span>
@@ -578,7 +588,7 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                                                     <div class="git-label-top git-label-reward">
                                                         ${formatNumber(getPrice(task))}
                                                     </div>
-                                                    <div class="git-label-sub">
+                                                    <div class="git-label-sub" title="${labels['pertask']}">
                                                         ${labels['pertask']}
                                                     </div>
                                                 </span>
@@ -586,7 +596,7 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                                                     <div class="git-label-top">
                                                         ${formatNumber(task.projectStats.moneyMax3)}
                                                     </div>
-                                                    <div class="git-label-sub">
+                                                    <div class="git-label-sub" title="${labels['maxpay']}">
                                                         ${labels['maxpay']}
                                                     </div>
                                                 </span>
@@ -594,7 +604,7 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                                                     <div class="git-label-top">
                                                         ${formatTime(task.projectStats.averageSubmitTimeSec)}
                                                     </div>
-                                                    <div class="git-label-sub">
+                                                    <div class="git-label-sub" title="${labels['time']}">
                                                         ${labels['time']}
                                                     </div>
                                                 </span>
@@ -602,7 +612,7 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                                                     <div class="git-label-top">
                                                         ${formatTime(task.pools[0].assignmentMaxDurationSeconds)}
                                                     </div>
-                                                    <div class="git-label-sub">
+                                                    <div class="git-label-sub" title="${labels['maxtime']}">
                                                         ${labels['maxtime']}
                                                     </div>
                                                 </span>
@@ -610,7 +620,7 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                                                     <div class="git-label-top">
                                                         ${task.projectStats.acceptanceRate?task.projectStats.acceptanceRate+'%':'--'}
                                                     </div>
-                                                    <div class="git-label-sub">
+                                                    <div class="git-label-sub" title="${labels['acceptance']}">
                                                         ${labels['acceptance']}
                                                     </div>
                                                 </span>
@@ -618,7 +628,7 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                                                     <div class="git-label-top">
                                                         ${task.trainingDetails.training?labels['yes']:labels['no']}
                                                     </div>
-                                                    <div class="git-label-sub">
+                                                    <div class="git-label-sub" title="${labels['train']}">
                                                         ${labels['train']}
                                                     </div>
                                                 </span>
@@ -626,7 +636,7 @@ function populateTasks(tasks, rankMethod, toHighlight) {
                                                     <div class="git-label-top git-label-req" title="${task.requesterInfo.name.EN}">
                                                         ${task.requesterInfo.name.EN}
                                                     </div>
-                                                    <div class="git-label-sub">
+                                                    <div class="git-label-sub" title="${labels['requester']}">
                                                         ${labels['requester']}
                                                     </div>
                                                 </span>

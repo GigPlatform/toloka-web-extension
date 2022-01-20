@@ -148,12 +148,11 @@ function getTaskAnalysis(isRemote) {
     					var taskData = response.data[taskId];
     					// console.log(taskData);
     					var eventName = taskData.question.type.toUpperCase();
-    					logEvent(tasksUrl, eventName, {
+    					logEvent(eventName, tasksUrl, {
     							extra: JSON.stringify(taskData),
     							type: 'LOGS',
     							subtype: 'ADDED_TASK'
-    						}
-    					);
+    					});
     				}
     			}
     			if (response.finished.length > 0) {
@@ -161,7 +160,7 @@ function getTaskAnalysis(isRemote) {
     					var taskData = response.data[taskId];
     					// console.log(taskData);
     					var eventName = taskData.question.type.toUpperCase();
-    					logEvent(tasksUrl, eventName, {
+    					logEvent(eventName, tasksUrl, {
     							extra: JSON.stringify(taskData),
     							type: 'LOGS',
     							subtype: 'FINISHED_TASK'
@@ -179,10 +178,12 @@ function getTaskAnalysis(isRemote) {
 			      	  		for (var taskId of response.finished) {
 		    					var taskData = response.data[taskId];
 		    					// console.log(taskData);
-		    					logEvent('https://worker.mturk.com' + taskData.task_url, 'PAGE_LOAD', {
-		    					 		type: 'WORKING',
-		    					 		subtype: 'TASK_SUBMITED'
-		    					 	}
+		    					logEvent('PAGE_LOAD',
+		    						       'https://worker.mturk.com' + taskData.task_url,
+		    						        {
+						    					 		type: 'WORKING',
+						    					 		subtype: 'TASK_SUBMITED'
+						    					 	}
 		    					 );
 		    				}
 		    				setChromeLocal('is_working', false);
@@ -208,7 +209,7 @@ function tolokaTaskAnalysis(isRemote) {
     					// console.log(taskData);
     					// var eventName = taskData.question.type.toUpperCase();
     					var eventName = taskData.trainingDetails.training?'TRAINING':'TASK';
-    					logEvent(tasksUrl, eventName, {
+    					logEvent(eventName, tasksUrl, {
     							extra: JSON.stringify(taskData),
     							type: 'LOGS',
     							subtype: 'ADDED_TASK'
@@ -223,7 +224,7 @@ function tolokaTaskAnalysis(isRemote) {
     					// console.log(taskData);
     					// var eventName = taskData.question.type.toUpperCase();
     					var eventName = taskData.trainingDetails.training?'TRAINING':'TASK';
-    					logEvent(tasksUrl, eventName, {
+    					logEvent(eventName, tasksUrl, {
     							extra: JSON.stringify(taskData),
     							type: 'LOGS',
     							subtype: 'FINISHED_TASK'
@@ -243,10 +244,12 @@ function tolokaTaskAnalysis(isRemote) {
 			      	  		for (var taskId of response.finished) {
 		    					var taskData = response.data[taskId];
 		    					// console.log(taskData);
-		    					logEvent(`https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${taskData.lightweightTec.poolId}/${taskData.activeAssignments[0].id}`, 'PAGE_LOAD', {
-		    					 		type: 'WORKING',
-		    					 		subtype: 'TASK_SUBMITED'
-		    					 	}
+		    					logEvent('PAGE_LOAD', 
+		    							`https://${sandboxMode?'sandbox.':''}toloka.yandex.com/task/${taskData.lightweightTec.poolId}/${taskData.activeAssignments[0].id}`, 
+		    							{
+		    					 			type: 'WORKING',
+		    					 			subtype: 'TASK_SUBMITED'
+		    					 		}
 		    					 );
 		    				}
 		    				setChromeLocal('is_working', false);
@@ -446,57 +449,73 @@ function tolokaRecommenderCron(isRemote) {
 
 function tolokaGetNewTasks(isRemote) {
 	return new Promise((resolve, reject) => {
-    var url = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/task-suite-pool-groups?userLangs=EN`;
-    fetch(url, {
-		  "method": "GET",
-		  "mode": "cors",
-		  "credentials": "include"
-		}).then((response) => {if (response.ok) {return response.json();}})
-		  .then(data => {
-		    var tasks = [];
-        var tasksData = {};
-        for (var task of data) {
-        	var taskId = `${task.pools[0].id}`;
-        	// var taskId = `${task.projectId}_${task.pools[0].id}`;
-        	tasks.push(taskId);
-        	tasksData[taskId] = task;
-        }
-        var output = {
-        	data: tasksData,
-        	list: tasks,
-        	numTasks: tasks.length
-        };
-        let extra = {status:0, preference:0};
-        storeDataset(data, extra);
-        storeFeatures(data, extra);
-        resolve(output);
-		  }).catch((error)=>{});
+		getLanguage().then(lang=>{
+			var url = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/task-suite-pool-groups?userLangs=${lang}`;
+	    fetch(url, {
+			  "method": "GET",
+			  "mode": "cors",
+			  "credentials": "include"
+			}).then((response) => {if (response.ok) {return response.json();}})
+			  .then(data => {
+			  	var tasks = [];
+		      var tasksData = {};
+			  	if (Array.isArray(data)) {
+		        for (var task of data) {
+		        	var taskId = `${task.pools[0].id}`;
+		        	// var taskId = `${task.projectId}_${task.pools[0].id}`;
+		        	tasks.push(taskId);
+		        	tasksData[taskId] = task;
+		        }
+		        let extra = {status:0, preference:0};
+		        storeDataset(data, extra);
+		        storeFeatures(data, extra);
+			  	}
+		  		var output = {
+	        	data: tasksData,
+	        	list: tasks,
+	        	numTasks: tasks.length
+	        };
+	        resolve(output);
+			  }).catch((error)=>{
+			  	resolve({
+	        	data: {},
+	        	list: [],
+	        	numTasks: 0
+	        });
+			  });
+		});
   });
 }
 
 function tolokaQueue(isRemote) {
   return new Promise((resolve, reject) => {
-    var url = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/i-v3/task-suite-pools?withActiveAssignmentsOnly=true&userLangs=EN`;
-    fetch(url, {
-		  "method": "GET",
-		  "mode": "cors",
-		  "credentials": "include"
-		}).then((response) => {if (response.ok) {return response.json();}})
-		  .then(data => {
-		    var tasks = [];
-        var tasksData = {};
-        for (var row of data) {
-        	var task_id = `${row.lightweightTec.projectId}_${row.lightweightTec.poolId}`;
-        	tasks.push(task_id);
-        	tasksData[task_id] = row;
-        }
-        var output = {
-        	data: tasksData,
-        	list: tasks,
-        	numTasks: tasks.length
-        };
-        resolve(output);
-		}).catch((error)=>{});
+  	getLanguage().then(lang=>{
+	    var url = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/i-v3/task-suite-pools?withActiveAssignmentsOnly=true&userLangs=${lang}`;
+	    fetch(url, {
+			  "method": "GET",
+			  "mode": "cors",
+			  "credentials": "include"
+			}).then((response) => {if (response.ok) {return response.json();}})
+			  .then(data => {
+			    var tasks = [];
+	        var tasksData = {};
+	        if (Array.isArray(data)) {
+		        for (var row of data) {
+		        	var task_id = `${row.lightweightTec.projectId}_${row.lightweightTec.poolId}`;
+		        	tasks.push(task_id);
+		        	tasksData[task_id] = row;
+		        }
+	        }
+	        var output = {
+	        	data: tasksData,
+	        	list: tasks,
+	        	numTasks: tasks.length
+	        };
+	        resolve(output);
+			}).catch((error)=>{
+
+			});
+  	});
   });
 }
 
@@ -636,24 +655,30 @@ function tolokaWage(isRemote) {
 		  "credentials": "include"
 		}).then((response) => {if (response.ok) {return response.json();}})
 		  .then(data => {
-		  	var toProcess = false;
-		  	// console.log('COMPARE_DATES', data[0].date, date);
-		  	if (data.length > 0 && data[0].date == date) {
-			  	for (var i in data) {
-			  		for (var j in data[i].assignments) {
-			  			var todayRecord = data[i].assignments[j];
-			      	totals.Bonuses += todayRecord.additionalReward;
-			      	totals.Pending += todayRecord.blockedIncome;
-			      	totals.Total += todayRecord.income;
-			  		}
-			  		for (var key of Object.keys(totals)) {
-				  		totals[key] = roundValue(totals[key]);
-				    }
-				    resolve(totals);
-			  		break;
-			  	}
-		  	} 
-		}).catch((error)=>{});
+		  	if (Array.isArray(data)) {
+			  	var toProcess = false;
+			  	// console.log('COMPARE_DATES', data[0].date, date);
+			  	if (data.length > 0 && data[0].date == date) {
+				  	for (var i in data) {
+				  		for (var j in data[i].assignments) {
+				  			var todayRecord = data[i].assignments[j];
+				      	totals.Bonuses += todayRecord.additionalReward;
+				      	totals.Pending += todayRecord.blockedIncome;
+				      	totals.Total += todayRecord.income;
+				  		}
+				  		for (var key of Object.keys(totals)) {
+					  		totals[key] = roundValue(totals[key]);
+					    }
+					    resolve(totals);
+				  		break;
+				  	}
+			  	} 
+		  	} else {
+		  		resolve(totals);
+		  	}
+		}).catch((error)=>{
+			resolve(totals);
+		});
   });
 }
 
@@ -692,6 +717,14 @@ function saveWage(platform, wage) {
 		// console.log('WAGES')
 		// console.log(wages)
 		setChromeLocal('wages', wages);
+		if (diffWage.value != 0) {
+			logEvent("CHANGE_WAGE", url, {
+  							extra: JSON.stringify(diffWage),
+  							type: 'EARNINGS',
+  							subtype: 'WAGE'
+  						}
+  		);
+		}
 		// console.log(wages);
 	});
 }
@@ -743,36 +776,69 @@ function upworkEarnings() {
 	// console.log('fiverrEarnings');
 }
 
+function tolokaGotError(data) {
+  if (isAnObject(data) && data.hasOwnProperty('code') && data.code === 'ACCESS_DENIED') {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function tolokaGetUserData() {
-	// console.log('tolokaGetUserData');
+	console.log('tolokaGetUserData');
 	return new Promise((resolve, reject) => {
     var url = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/users/current/worker`;
+    console.log(url);
     fetch(url, {
 		  "method": "GET",
 		  "mode": "cors",
 		  "credentials": "include"
 		}).then((response) => {if (response.ok) {return response.json();}})
 		  .then(data => {
-		    getSettings().then(config=>{
-		    	config.userData = data;
-		    	setChromeLocal('settings', config);
-		    	resolve(data);
-		    });
+		  	console.log(data);
+		  	console.log(tolokaGotError(data))
+		  	if (!tolokaGotError(data)) {
+			    getSettings().then(config=>{ 	
+			    	if (!config.hasOwnProperty('userData')) {
+			    		console.log('userData');
+			    		logEvent("USER", 'chrome://userdata', {
+	  							extra: JSON.stringify(data),
+	  							type: 'API',
+	  							subtype: 'META_DATA'
+	  						}
+	  					);
+			    	}
+			    	config.userData = data;
+			    	setChromeLocal('settings', config);
+			    	resolve(data);
+			    });
+		    } else {
+		    	resolve({});
+		    }
 		  }).catch((error)=>{});
   });
 }
 
 function platformEnabled(platform) {
+	// console.log('platformEnabled', platform);
 	if (platform == 'TOLOKA') {
+		// console.log("APP_ACTIVATED_1");
 		tolokaTasksRemote();
 		tolokaEarningsRemote();
 		tolokaRecommenderPool();
 		tolokaGetUserData();
+		// console.log("APP_ACTIVATED_2");
+		logEvent("APP_ACTIVATED", 'chrome://activated', {
+    							type: 'SYSTEM',
+    							subtype: 'ADDED_TASK'
+    					});
 	}
 }
 
 function platformEnable(platform) {
+	// console.log('platformEnable', platform);
 	getChromeLocal('enabled_platforms', {}).then(platforms => {
+		// console.log(platforms);
 		if (!platforms.hasOwnProperty(platform)) {
 			platforms[platform] = true;
 			setChromeLocal('enabled_platforms', platforms);
@@ -782,6 +848,7 @@ function platformEnable(platform) {
 }
 
 function matchATrigger(data) {
+	// console.log('matchATrigger');
 	platformEnable(data.platform);
 	if (triggersMap.hasOwnProperty(data.activityType) && triggersMap[data.activityType].hasOwnProperty(data.platform)) {
 		for (var func of triggersMap[data.activityType][data.platform]) {

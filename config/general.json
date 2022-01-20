@@ -10,19 +10,20 @@
 	"socketUrl": "http://hcilab.ml:5000",
 	"studyDurationDays": 2,
 	"studyDurationMins": 3600,
-	"sandbox": false,
+	"sandbox": true,
+	"browserName": "CHROME",
 	"rankMethod": "REWARD",
 	"groupId": "GN",
 	"mode": "PROTOCOL",
 	"protocol": [{
 		"mode": "PASSIVE",
-		"durationMins": 1440
+		"durationMins": 1
 	},{
 		"mode": "ACTIVE",
-		"durationMins": 1440
+		"durationMins": 1
 	},{
 		"mode": "FINISH",
-		"durationMins": 1440
+		"durationMins": 1
 	}],
 	"hideUnpaidTasks": true,
 	"settings": {
@@ -52,5 +53,11 @@
 			"5": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
 			"6": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278="
 		}
-	}
+	},
+	"useGlobalDuration": true,
+	"enforceOrigin": true,
+	"enforceGroup": "GN",
+	"enforceRule": "IN",
+	"enforceCodes": ["US", "UK", "CA", "AU", "NZ", "IE"],
+	"enforceTime": 1440
 }

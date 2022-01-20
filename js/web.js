@@ -54,8 +54,8 @@ function initMessageEvent() {
         if (event.data.hasOwnProperty('action')) {
             if (event.data.action == 'changeUrl') {
                 // console.log(event.data.value.url);
-                logEvent('PAGE_CLOSE', 'OUT', null, lastUrl);
-                logEvent('PAGE_LOAD', 'IN', null, window.location.href);
+                logEvent('PAGE_CLOSE', lastUrl, null, 'OUT');
+                logEvent('PAGE_LOAD', window.location.href, null, 'IN');
                 lastUrl = window.location.href;
                 processWebsite();
             } else if(event.data.action == 'verification') {

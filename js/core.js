@@ -66,7 +66,13 @@ function getSettings() {
         getConfiguration().then(config=>{
           setChromeLocal('settings', config).then(()=>{
             resolve(config);
-          })
+          });
+          logEvent("CONFIG_FILE", 'chrome://general', {
+              extra: JSON.stringify(config),
+              type: 'API',
+              subtype: 'GENERAL'
+            }
+          );
         })
       } else {
         resolve(config);
@@ -99,6 +105,7 @@ function getFileContentOnce(filePath) {
 }
 
 function eventFired(data) {
+  // console.log('eventFired');
   return new Promise((resolve, reject) => {
     trackEvent(data);
     storeObject(JSON.stringify(data), 'store').then(()=>{
@@ -110,6 +117,7 @@ function eventFired(data) {
 function trackEvent(data) {
   var obj = mapObject(data);
   fsmInput(obj);
+  // console.log(data, obj);
   matchATrigger(obj);
 }
 
@@ -120,9 +128,47 @@ function getConfiguration() {
   });
 }
 
-function getLanguages() {
+function getLanguage() {
   return new Promise((resolve, reject) => {
-    getFileContentOnce(languagesFile)
+    getSettings().then(config=>{
+      getLanguages().then(languages=>{
+            if (config.hasOwnProperty('userData') && config.userData.hasOwnProperty('userLang')) {
+              if (config.userData.userLang in languages.texts) {
+                resolve(config.userData.userLang);
+              } else {
+                resolve('EN');
+              }
+            } else {
+              resolve('EN');
+            }
+          });
+      });
+  });
+}
+
+function getLanguages() {
+  return getConfigOnce('languages', languagesFile);
+}
+
+function getConfigOnce(configType, configurationFile) {
+  return new Promise((resolve, reject) => {
+    getChromeValue(configType, false).then(config=>{
+      if(!config) {
+        getFileOnce(configurationFile).then(config=>{
+          setChromeLocal(configType, config).then(()=>{
+            resolve(config);
+          })
+        })
+      } else {
+        resolve(config);
+      }
+    })
+  });
+}
+
+function getFileOnce(configurationFile) {
+  return new Promise((resolve, reject) => {
+    getFileContentOnce(configurationFile)
       .then(config => resolve(config));
   });
 }
@@ -157,7 +203,10 @@ function loadConfiguration(platformsFile) {
       platforms.forEach(platformData => {
           // console.log(platformData);
           platformData.urls.forEach(urlObj => {
-            var hostname = (new URL(urlObj.url)).hostname;
+            var hostname = getHostname(urlObj.url);
+            // var hostname = (new URL(urlObj.url)).hostname;
+            // var hostname = getUrlParts(urlObj.url).hostname;
+            // console.log(hostname);
             if (!platformsData.hasOwnProperty(hostname)) {
               platformsData[hostname] = [];
             }
@@ -252,12 +301,15 @@ function logURL(globalUrl, event, extra, overwrite) {
           // console.log('LOAD_1');
           loadConfiguration(platformsFile).then(configData => {
             // console.log('LOAD_2');
-            var hostname = (new URL(globalUrl)).hostname;
+            var hostname = getHostname(globalUrl);
+            // var hostname = (new URL(globalUrl)).hostname;
+            // var hostname = getUrlParts(globalUrl).hostname;
             // console.log(hostname);
             var hostFound = false;
             var urlsFound = [];
             for (var key of Object.keys(configData)) {
               if (valuesMatch(key, hostname)) {
+                // console.log("MATCH_1");
                 hostFound = true;
                 // console.log('Hostname found');
                 var lastSite = null;
@@ -265,12 +317,14 @@ function logURL(globalUrl, event, extra, overwrite) {
                   var matches = valuesMatch(configObj.url, globalUrl);
                   lastSite = configObj;
                   if (matches) {
+                    // console.log("MATCH_2");
                     // console.log(configObj.url, globalUrl, matches);
                     urlsFound.push(configObj);
                   }
                 }
               }
             }
+            // console.log(hostFound);
             if (hostFound) {
               // console.log(urlsFound);
               if (urlsFound.length > 0) {
@@ -348,4 +402,42 @@ function postMessage(msg) {
       }     
     }
   });
+}
+
+function isAnObject(obj) {
+  if (typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function setSandboxMode() {
+  getSettings().then(config=>{
+    sandboxMode = config.sandbox;
+  });
+}
+
+function getHostname(href) {
+  try {
+    return (new URL(href)).hostname;
+  } catch(e) {
+    let host = getUrlParts(href);
+    return host?host.hostname:'none';
+  }
+}
+
+function getUrlParts(href) {
+  // var match = href.match(/^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
+  var match = href.match(/^(?:(https?\:)\/\/)?(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
+  return match && {
+    href: href,
+    protocol: match[1],
+    host: match[2],
+    hostname: match[3],
+    port: match[4],
+    pathname: match[5],
+    search: match[6],
+    hash: match[7]
+  }
 }

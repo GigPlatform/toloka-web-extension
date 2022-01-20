@@ -3,7 +3,7 @@
     "name": "Toloka Assistant",
     "description": "This is an experimental plugin that add extra features to the Toloka user interface.",
     "minimum_chrome_version": "24.0.1307.0",
-    "version": "0.4.3",
+    "version": "0.4.4",
     "homepage_url": "https://bit.ly/cul-act-gn",
     "icons": {
         "16": "img/icon_16.png",

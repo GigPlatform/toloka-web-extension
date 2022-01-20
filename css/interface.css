@@ -30,9 +30,14 @@
 }
 
 .git-label-sub {
-    margin-top: -10px;
+    margin-top: -2px;
     font-size: 8px;
     padding: 0px;
+    line-height: 80%;
+    width:40px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 
 .gig-popup-tasks {

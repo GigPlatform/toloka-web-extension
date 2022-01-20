@@ -5,6 +5,7 @@ var modeObj = null;
 var socket = null;
 
 function init_process() {
+  setSandboxMode();
   init_triggers('back');
   fsmReset();
   triggersReset();
@@ -142,7 +143,7 @@ function eventFired(data) {
   storeObject(JSON.stringify(data), 'store');
 }
 
-function logEvent(url, event, overwrite) {
+function logEvent(event, url, overwrite) {
   logURL(url, event, null, overwrite)
    .then(data => {
      for (record of data) {
@@ -217,38 +218,42 @@ function openTabUrl(params, sendResponse) {
 }
 
 function initialSetup(userId, config) {
-  // console.log('USER_STUDY', config.isUserStudy);
-  config.userId = userId;
-  sandboxMode = config.sandbox;
-  if (config.isUserStudy) {
-    var url = config.initialSurveyUrl + userId;
-    browser.tabs.create({url: url}).then((tab) => {
-      // console.log("New tab launched");
-    });
-  }
-  if (config.mode != 'PROTOCOL') {
-    config.currentMode = config.mode;
-  } else {
-    if (config.hasOwnProperty('protocol') && config.protocol.length > 0) {
-      config.currentMode = config.protocol[0].mode;
-    } else {
-      config.currentMode = 'ACTIVE';
+  return new Promise((resolve, reject) => {
+    // console.log('USER_STUDY', config.isUserStudy);
+    config.userId = userId;
+    if (config.isUserStudy) {
+      var url = config.initialSurveyUrl + userId;
+      browser.tabs.create({url: url}).then((tab) => {
+        // console.log("New tab launched");
+      });
     }
-  }
-  let nextDue = config.mode=='PROTOCOL'?config.protocol[0].durationMins:config.studyDurationMins;
-  let modeData = {
-    mode: config.mode,
-    initDate: (new Date()).getTime(),
-    curState: 0,
-    totalStates: config.mode=='PROTOCOL'?config.protocol.length:1,
-    nextDue: (new Date()).getTime() + nextDue*60*1000
-  };
-  config.currentState = 0;
-  config.nextDue = modeData.nextDue;
-  setChromeLocal('mode', modeData);
-  setChromeLocal('settings', config);
-  getLanguageLabels();
-  startModeProcess();
+    if (config.mode != 'PROTOCOL') {
+      config.currentMode = config.mode;
+    } else {
+      if (config.hasOwnProperty('protocol') && config.protocol.length > 0) {
+        config.currentMode = config.protocol[0].mode;
+      } else {
+        config.currentMode = 'ACTIVE';
+      }
+    }
+    let nextDue = config.mode=='PROTOCOL'?config.protocol[0].durationMins:config.studyDurationMins;
+    let modeData = {
+      mode: config.mode,
+      initDate: (new Date()).getTime(),
+      curState: 0,
+      totalStates: config.mode=='PROTOCOL'?config.protocol.length:1,
+      nextDue: (new Date()).getTime() + nextDue*60*1000
+    };
+    config.currentState = 0;
+    config.nextDue = modeData.nextDue;
+    config.installTime = (new Date()).getTime();
+    setChromeLocal('mode', modeData);
+    setChromeLocal('settings', config).then(()=>{
+      getLanguages();
+      startModeProcess();
+      resolve();
+    });
+  });
 }
 
 function getLanguageLabels() {
@@ -342,7 +347,9 @@ browser.runtime.onInstalled.addListener(function (object) {
       // console.log('INIT_CONF', config);
       // setChromeLocal('settings', config).then(() => {
         // console.log('SETTINGS', config)
-        initialSetup(userId, config);
+        initialSetup(userId, config).then(()=>{
+          logEvent('PLUGIN_INSTALL', 'chrome://appinstall');
+        });
       // });
     });
   });
@@ -358,6 +365,7 @@ browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       browser.pageAction.setIcon({path: "img/icon"+statusId+".jpg", tabId: lastTabId});
     });
   }
+  // logEvent(tab.url, 'TAB_UPDATED');
 });
 
 browser.tabs.query({active: true, currentWindow: true}).then((tabs) => {
@@ -384,10 +392,9 @@ if (browser.pageAction) {
           var is_working = result['is_working'];
           var working_on = result['working_on'];
           if (is_working) {
-            logEvent(tab.url, statusId==1?'SYSTEM_ENABLED_WORKING':'SYSTEM_DISABLED_WORKING',
-              {platform: working_on, type: 'WORKING'});
+            logEvent(statusId==1?'SYSTEM_ENABLED_WORKING':'SYSTEM_DISABLED_WORKING', tab.url, {platform: working_on, type: 'WORKING'});
           } else {
-            logEvent(tab.url, statusId==1?'SYSTEM_ENABLED':'SYSTEM_DISABLED');
+            logEvent(statusId==1?'SYSTEM_ENABLED':'SYSTEM_DISABLED', tab.url);
           }
         }
       });
@@ -406,15 +413,20 @@ browser.tabs.onActivated.addListener(function(tabId, tabObj) {
     });
   }
   browser.tabs.query({active: true}).then((tab) => {
-    if (tab) {
-      logEvent(tab.url, 'TAB_CHANGE');
+    if (tab.length > 0) {
+      // console.log(tab[0].url);
+      logEvent('TAB_CHANGE', tab[0].url);
+    } else {
+      logEvent('TAB_CHANGE', 'chrome://tabchange');
     }
   });
+  // console.log(tabId, tabObj, tabToUrl);
+  // logEvent('chrome://tabchanged', 'TAB_CHANGE');
   // browser.browserAction.setBadgeText({text: "."});
 });
 
 browser.tabs.onRemoved.addListener(function(tabId, info) {
-  logEvent(tabToUrl[tabId], 'TAB_CLOSED');
+  logEvent('TAB_CLOSED', tabToUrl[tabId]);
   delete tabToUrl[tabId];
 });
 

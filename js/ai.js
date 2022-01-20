@@ -135,13 +135,19 @@ function processExtra(obj, extra, dict) {
 function getCurrentTasks() {
     return new Promise((resolve, reject) => {
         // console.log('sandboxMode', sandboxMode);
-        fetch(`https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/task-suite-pool-groups?userLangs=EN`, {
-            "method": "GET",
-            "mode": "cors",
-            "credentials": "include"
-        }).then(response => response.json())
-          .then(data => {
-            resolve(data);
+        getLanguage().then(lang=>{
+          fetch(`https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/task-suite-pool-groups?userLangs=${lang}`, {
+              "method": "GET",
+              "mode": "cors",
+              "credentials": "include"
+          }).then(response => response.json())
+            .then(data => {
+              if (Array.isArray(data)) {
+                resolve(data);
+              } else {
+                resolve([]);
+              }
+          });
         });
     });  
 }
@@ -319,59 +325,65 @@ function getTaskType(task) {
         "yt_project_class__snippet__user_content": "USR",
         "yt_project_class__snippet__web_searching": "WEB"
     };
-    var meta = task.projectMetaInfo.experimentMeta;
     var taskType = "NON";
-    for (var typeTask in types) {
-        if (meta.hasOwnProperty(typeTask)) {
-            taskType = types[typeTask];
-            break;
-        }
+    if (task.hasOwnProperty('projectMetaInfo') && task.projectMetaInfo.hasOwnProperty('experimentMeta')) {
+      var meta = task.projectMetaInfo.experimentMeta;
+      for (var typeTask in types) {
+          if (meta.hasOwnProperty(typeTask)) {
+              taskType = types[typeTask];
+              break;
+          }
+      }
     }
     return taskType;
 }
 
 function trainModel() {
   return new Promise((resolve, reject) => {
-    getChromeLocal('features', {schema:fieldNames, data:{}, active:{}}).then(features => {
-      // console.log('START_TRAINING');
-      let data = Object.values(features.data);
-      if (data.length > 0) {
-        xTrain = data.map(val=>val.slice(1));
-        yTrain = data.map(val=>val[0]);
+    if (backLevel) {
+      getChromeLocal('features', {schema:fieldNames, data:{}, active:{}}).then(features => {
+        // console.log('START_TRAINING');
+        let data = Object.values(features.data);
+        if (data.length > 0) {
+          xTrain = data.map(val=>val.slice(1));
+          yTrain = data.map(val=>val[0]);
 
-        modelGlobal = tf.sequential();
-        modelGlobal.add(tf.layers.dense({units: 20, inputShape: [fieldNames.length-1]}));
-        modelGlobal.add(tf.layers.dense({units: 10}));
-        modelGlobal.add(tf.layers.dense({units: 1}));
-        modelGlobal.summary();
+          modelGlobal = tf.sequential();
+          modelGlobal.add(tf.layers.dense({units: 20, inputShape: [fieldNames.length-1]}));
+          modelGlobal.add(tf.layers.dense({units: 10}));
+          modelGlobal.add(tf.layers.dense({units: 1}));
+          modelGlobal.summary();
 
-        modelGlobal.compile({
-          optimizer: 'adam',
-          loss: tf.losses.meanSquaredError,
-          metrics: ['accuracy'],
-        });
+          modelGlobal.compile({
+            optimizer: 'adam',
+            loss: tf.losses.meanSquaredError,
+            metrics: ['accuracy'],
+          });
 
-        // console.log('TRAINING');
-        modelGlobal.fit(tf.tensor2d(xTrain), tf.tensor1d(yTrain), {
-          epochs: 100,
-          verbose: 0,
-          callbacks: {
-            onTrainEnd: async (logs) => {
-              // console.log('TRAIN_END_1');
-              resolve();    
+          // console.log('TRAINING');
+          modelGlobal.fit(tf.tensor2d(xTrain), tf.tensor1d(yTrain), {
+            epochs: 100,
+            verbose: 0,
+            callbacks: {
+              onTrainEnd: async (logs) => {
+                // console.log('TRAIN_END_1');
+                resolve();    
+              }
             }
-          }
-        }).then(history => {
-          // console.log('TRAIN_END_2');
-          resolve();
-        });
-        // console.log('TRAIN_END_3');
-        setTimeout(()=>{
-          // console.log('TRAIN_END_4');
-          resolve();
-        }, 200);
-      }
-    });
+          }).then(history => {
+            // console.log('TRAIN_END_2');
+            resolve();
+          });
+          // console.log('TRAIN_END_3');
+          setTimeout(()=>{
+            // console.log('TRAIN_END_4');
+            resolve();
+          }, 200);
+        }
+      });      
+    } else {
+      browser.runtime.sendMessage({msg: "trainModel"});
+    }
   });
 }
 

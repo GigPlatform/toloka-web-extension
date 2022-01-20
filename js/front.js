@@ -8,14 +8,12 @@ var libraries = [];
 // var libraries = [browser.runtime.getURL("js/store.js")];
 
 function init_process() {
-
+  initConfig();
   init_triggers('front');
 }
 
 function initConfig() {
-  getSettings().then(config=>{
-    sandboxMode = config.sandbox;
-  });
+  setSandboxMode();
 }
 
 var inactivityInterval = null;
@@ -176,52 +174,56 @@ function executeValidation(settings, data) {
 
 var stats = {};
 var lastEvents = {};
-function logEvent(event, action, overwrite, otherUrl) {
-  var log = true;
-  if (action) {
-    if (action == 'OUT') {
-      checkLastInteraction();
-      inactivity_stop();
-      for (var i in stats) {
-        stats[i] = false;
-      }
-      lastEvents = {};
-      wasInactive = false;
-    } else if (action == 'ONCE') {
-      // console.log(stats);
-      if (wasInactive === true) {
-        wasInactive = false;
-        logEvent('PAGE_REACTIVATE')
-      }
-      inactivity_restart();
-      var lastTime = (new Date()).getTime();
-      lastEvents.final = lastTime;
-      lastEvents[event] = lastTime;
-      if (!stats.hasOwnProperty(event))
-        stats[event] = false;
-      if (!stats[event]) {
-        stats[event] = true;
-      } else {
-        log = false;
-      }
-    } else if (action == 'IN') {
-      inactivity_start();
-    }
-  }
-  if (log) {
-    logURL(otherUrl?otherUrl:globalUrl, event, null, overwrite)
-      .then(data => {
-        // console.log(data);
-        for (record of data) {
-          if (record.extra == null) {
-            // console.log(record.data);
-            eventFired(record.data);
-          } else {
-            executeValidation(record.extra, record.data);
-          }
+function logEvent(event, otherUrl, overwrite, action) {
+  // console.log('logEvent');
+  return new Promise((resolve, reject) => {
+    var log = true;
+    if (action) {
+      if (action == 'OUT') {
+        checkLastInteraction();
+        inactivity_stop();
+        for (var i in stats) {
+          stats[i] = false;
         }
-      });
-  }
+        lastEvents = {};
+        wasInactive = false;
+      } else if (action == 'ONCE') {
+        // console.log(stats);
+        if (wasInactive === true) {
+          wasInactive = false;
+          logEvent('PAGE_REACTIVATE')
+        }
+        inactivity_restart();
+        var lastTime = (new Date()).getTime();
+        lastEvents.final = lastTime;
+        lastEvents[event] = lastTime;
+        if (!stats.hasOwnProperty(event))
+          stats[event] = false;
+        if (!stats[event]) {
+          stats[event] = true;
+        } else {
+          log = false;
+        }
+      } else if (action == 'IN') {
+        inactivity_start();
+      }
+    }
+    if (log) {
+      logURL(otherUrl?otherUrl:globalUrl, event, null, overwrite)
+        .then(data => {
+          // console.log(data);
+          for (let record of data) {
+            if (record.extra == null) {
+              // console.log(record.data);
+              eventFired(record.data);
+            } else {
+              executeValidation(record.extra, record.data);
+            }
+          }
+          resolve();
+        });
+    }
+  });
 }
 
 function checkLastInteraction() {
@@ -230,20 +232,20 @@ function checkLastInteraction() {
   }
 }
 
-loadLibraries(libraries, () => logEvent('PAGE_LOAD', 'IN'));
+loadLibraries(libraries, () => logEvent('PAGE_LOAD', null, null, 'IN'));
 
-window.addEventListener('blur', () => logEvent('PAGE_BLUR', 'OUT'));
+window.addEventListener('blur', () => logEvent('PAGE_BLUR', null, null, 'OUT'));
 
-window.addEventListener('focus', () => logEvent('PAGE_FOCUS', 'IN'));
+window.addEventListener('focus', () => logEvent('PAGE_FOCUS', null, null, 'IN'));
 
-window.addEventListener("beforeunload", () => logEvent('PAGE_CLOSE', 'OUT'));
+window.addEventListener("beforeunload", () => logEvent('PAGE_CLOSE', null, null, 'OUT'));
 
 // window.addEventListener("unload", () => logEvent('PAGE_UNLOAD'));
 
-window.addEventListener("keypress", () => logEvent('PAGE_KEY', 'ONCE'));
+window.addEventListener("keypress", () => logEvent('PAGE_KEY', null, null, 'ONCE'));
 
-window.addEventListener("click", () => logEvent('PAGE_CLICK', 'ONCE'));
+window.addEventListener("click", () => logEvent('PAGE_CLICK', null, null, 'ONCE'));
 
-window.addEventListener('scroll', () => logEvent('PAGE_SCROLL', 'ONCE'));
+window.addEventListener('scroll', () => logEvent('PAGE_SCROLL', null, null, 'ONCE'));
 
 init_process();
