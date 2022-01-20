@@ -48,8 +48,13 @@
     float:left;
 }
 
+.gig-popup-left {
+    float: left;
+}
+
 .gig-popup-right {
     float: right;
+    margin-left: 3px;
 }
 
 .gig-rounded {

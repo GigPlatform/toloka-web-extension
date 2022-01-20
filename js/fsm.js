@@ -60,8 +60,10 @@ function processState(state, obj) {
 						// console.log(lastObj);
 						setChromeLocal(state, updatedQueue);
 						saveLapse(state, lastObj, obj);
-						if (states[state].hasOwnProperty('execute'))
+						if (states[state].hasOwnProperty('execute')) {
+							// console.log(state, states[state]);
 							window[states[state].execute](lastObj, obj);
+						}
 						// resolve(lastObj);
 					}
 				});

@@ -1,29 +1,32 @@
 {
 	"isUserStudy": true,
+	"pluginName": "Toloka Assistant",
 	"initialSurveyUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdWQa1AkVc5vV0VhdOYQLGgK77Pw-LEpmsuCBKpdo7QQopWbg/viewform?usp=pp_url&entry.784114392=",
+	"dailySurveyUrl": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
 	"finalSurveyUrl": "https://docs.google.com/forms/d/e/1FAIpQLSefhPyHJs9x-_v0WxQ5aI3kGF3hfXNZH2vk3KMx1C8CnoZSGw/viewform?usp=pp_url&entry.1172212682=",
 	"logServerUrl": "https://script.google.com/macros/s/AKfycbwGx2_5a6IwcNI2YZuz2AZvb1J-7Y8Ulk5fYHjZoA8wvHzajv9P55DYiI8UnoV0W403HA/exec",
+	"instructionsUrl": "https://bit.ly/cul-act-gn",
 	"serverUrls": [
 		"https://script.google.com/macros/s/AKfycbwGx2_5a6IwcNI2YZuz2AZvb1J-7Y8Ulk5fYHjZoA8wvHzajv9P55DYiI8UnoV0W403HA/exec",
 		"https://hcilab.ml/overhead/api"	
 	],
 	"socketUrl": "http://hcilab.ml:5000",
-	"studyDurationDays": 2,
-	"studyDurationMins": 3600,
-	"sandbox": true,
+	"studyDurationDays": 14,
+	"studyDurationMins": 20160,
+	"sandbox": false,
 	"browserName": "CHROME",
-	"rankMethod": "REWARD",
+	"rankMethod": "AI",
 	"groupId": "GN",
 	"mode": "PROTOCOL",
 	"protocol": [{
 		"mode": "PASSIVE",
-		"durationMins": 1
+		"durationMins": 10080
 	},{
 		"mode": "ACTIVE",
-		"durationMins": 1
+		"durationMins": 10080
 	},{
 		"mode": "FINISH",
-		"durationMins": 1
+		"durationMins": 10080
 	}],
 	"hideUnpaidTasks": true,
 	"settings": {
@@ -33,31 +36,5 @@
 		"msg_work": true,
 		"not_whil": true,
 		"num_task": 5
-	},
-	"surveyLinks": {
-		"PASSIVE": {
-			"0": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"1": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"2": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"3": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"4": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"5": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"6": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278="
-		},
-		"ACTIVE": {
-			"0": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"1": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"2": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"3": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"4": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"5": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278=",
-			"6": "https://docs.google.com/forms/d/e/1FAIpQLSe2XInPGnb9EI539KyUiBNr6gcmRNPzg55LRUaEmXFtx_3zqg/viewform?usp=pp_url&entry.1915115278="
-		}
-	},
-	"useGlobalDuration": true,
-	"enforceOrigin": true,
-	"enforceGroup": "GN",
-	"enforceRule": "IN",
-	"enforceCodes": ["US", "UK", "CA", "AU", "NZ", "IE"],
-	"enforceTime": 1440
+	}
 }

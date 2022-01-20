@@ -566,6 +566,17 @@ function tolokaFilesRemote() {
     });
 }
 
+function tolokaConfigUpdate() {
+	console.log('tolokaConfigUpdate');
+	getSettings().then(config=>{
+		logEvent("CONFIG_UPDATE", 'chrome://configupdate', {
+  						extra: JSON.stringify(config),
+  						type: 'CONFIG',
+  						subtype: 'SYSTEM'
+  	});
+	});
+}
+
 function roundValue(num) {
 	return Math.round((num + Number.EPSILON) * 100) / 100;
 }
@@ -785,18 +796,18 @@ function tolokaGotError(data) {
 }
 
 function tolokaGetUserData() {
-	console.log('tolokaGetUserData');
+	// console.log('tolokaGetUserData');
 	return new Promise((resolve, reject) => {
     var url = `https://${sandboxMode?'sandbox.':''}toloka.yandex.com/api/users/current/worker`;
-    console.log(url);
+    // console.log(url);
     fetch(url, {
 		  "method": "GET",
 		  "mode": "cors",
 		  "credentials": "include"
 		}).then((response) => {if (response.ok) {return response.json();}})
 		  .then(data => {
-		  	console.log(data);
-		  	console.log(tolokaGotError(data))
+		  	// console.log(data);
+		  	// console.log(tolokaGotError(data))
 		  	if (!tolokaGotError(data)) {
 			    getSettings().then(config=>{ 	
 			    	if (!config.hasOwnProperty('userData')) {
@@ -854,6 +865,7 @@ function matchATrigger(data) {
 		for (var func of triggersMap[data.activityType][data.platform]) {
 			if (data.event == func.value) {
 				// console.log('EXECUTING TRIGGER 1');
+				// console.log(func.method);
 				window[func.method](data);
 			}
 		}

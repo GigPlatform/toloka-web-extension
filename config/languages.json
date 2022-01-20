@@ -38,7 +38,8 @@
 			"yes": "☒",
 			"no": "☐",
 			"new": "New",
-			"suggested": "Suggested"
+			"suggested": "Suggested",
+			"payment": "Pay"
 		},
 		"ES": {
 			"tasks": "Tareas",
@@ -77,7 +78,8 @@
 			"yes": "☒",
 			"no": "☐",
 			"new": "Nuevas",
-			"suggested": "Sugeridas"
+			"suggested": "Sugeridas",
+			"payment": "Pago"
 		},
 		"RU": {
 			"tasks": "Задания", 
@@ -116,7 +118,8 @@
 			"yes": "☒",
 			"no": "☐",
 			"new": "новый",
-			"suggested": "предложенный"
+			"suggested": "рекомендации",
+			"payment": "платить"
 		}
 	}
 }

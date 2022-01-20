@@ -65,6 +65,11 @@ function drawInterface() {
                                             <span id="settButton" class="gig-popup-right">
                                                 <svg width="16" height="16" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve"><g><g><path d="M63.8,28.3l-0.2-1.5L55,25.3c-0.2-0.9-0.5-1.7-0.9-2.5c-0.3-0.8-0.7-1.6-1.2-2.4l5-7.1l-0.9-1.2c-1.5-1.9-3.3-3.7-5.2-5.2L50.7,6l-7.1,5c-1.6-0.9-3.2-1.5-4.9-2l-1.5-8.6l-1.5-0.2c-2.5-0.3-5-0.3-7.4,0l-1.5,0.2L25.3,9c-0.9,0.2-1.7,0.5-2.5,0.9c-0.8,0.3-1.6,0.7-2.4,1.2l-7.1-5l-1.2,0.9c-1.9,1.5-3.7,3.3-5.2,5.2L6,13.3l5,7.1c-0.9,1.6-1.5,3.2-2,4.9l-8.6,1.5l-0.2,1.5c-0.3,2.5-0.3,5,0,7.4l0.2,1.5L9,38.7c0.2,0.9,0.5,1.7,0.9,2.5c0.3,0.8,0.7,1.6,1.2,2.4l-5,7.1l0.9,1.2c1.5,1.9,3.3,3.7,5.2,5.2l1.2,0.9l7.1-5c1.6,0.9,3.2,1.5,4.9,2l1.5,8.6l1.5,0.2c1.2,0.1,2.5,0.2,3.7,0.2s2.5-0.1,3.7-0.2l1.5-0.2l1.5-8.6c0.9-0.2,1.7-0.5,2.5-0.9c0.8-0.3,1.6-0.7,2.4-1.2l7.1,5l1.2-0.9c1.9-1.5,3.7-3.3,5.2-5.2l0.9-1.2l-5-7.1c0.9-1.6,1.5-3.2,2-4.9l8.6-1.5l0.2-1.5C64.1,33.3,64.1,30.8,63.8,28.3z M32,44c-6.6,0-12-5.4-12-12s5.4-12,12-12s12,5.4,12,12S38.6,44,32,44z"/></g></g></svg>
                                             </span>
+                                            <span id="helpButton" class="gig-popup-right">
+                                                <a target="_blank" href="${config.instructionsUrl}">
+                                                    <svg width="16" height="16" id="Capa_1" style="enable-background:new 0 0 91.999 92;" version="1.1" viewBox="0 0 91.999 92" width="91.999px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M45.385,0.004C19.982,0.344-0.334,21.215,0.004,46.619c0.34,25.393,21.209,45.715,46.611,45.377  c25.398-0.342,45.718-21.213,45.38-46.615C91.655,19.986,70.785-0.335,45.385,0.004z M45.249,74l-0.254-0.004  c-3.912-0.116-6.67-2.998-6.559-6.852c0.109-3.788,2.934-6.538,6.717-6.538l0.227,0.004c4.021,0.119,6.748,2.972,6.635,6.937  C51.903,71.346,49.122,74,45.249,74z M61.704,41.341c-0.92,1.307-2.943,2.93-5.492,4.916l-2.807,1.938  c-1.541,1.198-2.471,2.325-2.82,3.434c-0.275,0.873-0.41,1.104-0.434,2.88l-0.004,0.451H39.429l0.031-0.907  c0.131-3.728,0.223-5.921,1.768-7.733c2.424-2.846,7.771-6.289,7.998-6.435c0.766-0.577,1.412-1.234,1.893-1.936  c1.125-1.551,1.623-2.772,1.623-3.972c0-1.665-0.494-3.205-1.471-4.576c-0.939-1.323-2.723-1.993-5.303-1.993  c-2.559,0-4.311,0.812-5.359,2.478c-1.078,1.713-1.623,3.512-1.623,5.35v0.457H27.935l0.02-0.477  c0.285-6.769,2.701-11.643,7.178-14.487C37.946,18.918,41.446,18,45.53,18c5.346,0,9.859,1.299,13.412,3.861  c3.6,2.596,5.426,6.484,5.426,11.556C64.368,36.254,63.472,38.919,61.704,41.341z"/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/></svg>
+                                                </a>
+                                            </span>
                                         </div>
                                         <div class="user-menu-item">
                                             <div id="alertMessage"></div>
@@ -75,6 +80,9 @@ function drawInterface() {
                                         <div role="group" class="ButtonMenu">
                                             <button id="recButton" type="button" class="ButtonElement ButtonSelected">
                                                 <span>${labels["suggested"]}</span>
+                                            </button>
+                                            <button id="payButton" type="button" class="ButtonElement">
+                                                <span>${labels["payment"]}</span>
                                             </button>
                                             <button id="newButton" type="button" class="ButtonElement">
                                                 <span>${labels["new"]}</span>
@@ -237,6 +245,12 @@ function drawInterface() {
                         logEvent(`LIST_RECOM`, window.location.href, null);
                     });
 
+                    $("#payButton").on("click", function() {
+                        showPayTasks();
+                        // trackTelemetry(window.location.href, `LIST_RECOM`, null);
+                        logEvent(`LIST_PAY`, window.location.href, null);
+                    });
+
                     $("#newButton").on("click", function() {
                         showNewTasks();
                         // trackTelemetry(window.location.href, `LIST_NEW`, null);
@@ -268,7 +282,7 @@ function drawInterface() {
                                         <div class="user-menu-item">
                                             <span class="gig-popup-left">
                                                 <b>
-                                                    Culture Fit
+                                                    ${config.pluginName}
                                                 </b>
                                             </span>
                                             <span id="settButton" class="gig-popup-right">
@@ -332,16 +346,28 @@ function showNewTasks() {
         getActiveTasks().then(tasks => populateTasks(tasks, "TIME", addedIds));
         addedTasks.list = [];
         setChromeLocal('addedTasks', addedTasks);
-        $("#recButton").removeClass("ButtonSelected");
         $("#newButton").addClass("ButtonSelected");
+        $("#recButton").removeClass("ButtonSelected");
+        $("#payButton").removeClass("ButtonSelected");
     });
 }
 
 function showRecTasks() {
     $('#taskList').html(loaderCode);
     getSettings().then(config => {
-        getActiveTasks().then(tasks => populateTasks(tasks, config.rankMethod, []));
+        getActiveTasks().then(tasks => populateTasks(tasks, 'AI', []));
         $("#recButton").addClass("ButtonSelected");
+        $("#payButton").removeClass("ButtonSelected");
+        $("#newButton").removeClass("ButtonSelected");
+    });
+}
+
+function showPayTasks() {
+    $('#taskList').html(loaderCode);
+    getSettings().then(config => {
+        getActiveTasks().then(tasks => populateTasks(tasks, 'REWARD', []));
+        $("#payButton").addClass("ButtonSelected");
+        $("#recButton").removeClass("ButtonSelected");
         $("#newButton").removeClass("ButtonSelected");
     });
 }
@@ -402,7 +428,8 @@ function getSurveyLink(config) {
     let curTime = (new Date()).getTime();
     let remaining = config.nextDue - curTime;
     let remainingDays = parseInt(remaining/(24*60*60*1000));
-    return config.surveyLinks[config.currentMode][remainingDays+''] + config.userId + '_' + (new Date()).getTime() + '_' + remainingDays + '_' + config.currentMode;
+    return config.dailySurveyUrl + config.userId + '_' + (new Date()).getTime() + '_' + getNumDay(config) + '_' + remainingDays + '_' + config.currentMode;
+    // return config.surveyLinks[config.currentMode][remainingDays+''] + config.userId + '_' + (new Date()).getTime() + '_' + remainingDays + '_' + config.currentMode;
 }
 
 function processMode() {
@@ -425,14 +452,14 @@ function processMode() {
                     $('#alertMessage').html(`
                         ${labels["msgpassive"]} ${getRemainingTime(config.nextDue, labels)}.
                         ${labels["surreminder"]}
-                        <a target="_blank" href="${getSurveyLink(config)}">${labels["linksurvey"]}</a>
+                        <a target="_blank" href="${getSurveyLink(config)}">${labels["todaysurl"]}<b>${getNumDay(config)}</b></a>
                     `);
                   } else if (state == 'FINISH') {
                     // console.log('ENTER_4');
                     $('#alertMessage').html(`
                         ${labels["keeptool"]} ${getRemainingTime(config.nextDue, labels)}.
                         ${labels["surreminder"]}
-                        <a target="_blank" href="${getSurveyLink(config)}">${labels["linksurvey"]}</a>
+                        <a target="_blank" href="${getSurveyLink(config)}">${labels["todaysurl"]}<b>${getNumDay(config)}</b></a>
                     `);
                   }
                 } else {
@@ -523,7 +550,7 @@ function initMessageServer() {
 
 function notifyMe(text, link, source) {
     if (Notification.permission == 'granted') {
-        var notification = new Notification('Culture Fit', {
+        var notification = new Notification('Toloka Assistant', {
             icon: 'https://research.hcilab.ml/files/img.png',
             body: text,
         });

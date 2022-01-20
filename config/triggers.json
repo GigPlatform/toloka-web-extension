@@ -47,5 +47,11 @@
 		"events": [
 			{"type": "MINUTES_60"}
 		]
+	},{
+		"platform": "TOLOKA",
+		"method": "tolokaConfigUpdate",
+		"events": [
+			{"type": "MINUTES_30"}
+		]
 	}]
 }
